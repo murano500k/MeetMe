@@ -1,0 +1,111 @@
+apply plugin: 'com.android.application'
+
+
+
+android {
+    signingConfigs {
+        config {
+            keyAlias 'meetmeappkey'
+            keyPassword 'keypassword'
+            storeFile file('/home/artem/projects/keystoreForMyApps/meetme.jks')
+            storePassword 'meetmeapppassword'
+        }
+    }
+    compileSdkVersion 25
+    buildToolsVersion '25.0.0'
+    defaultConfig {
+        applicationId "com.stc.meetme"
+        minSdkVersion 21
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        jackOptions {
+            enabled true
+        }
+    }
+    lintOptions {
+        textReport true
+        textOutput 'stdout'
+        ignore 'InvalidPackage'
+        abortOnError false
+    }
+    dexOptions {
+        preDexLibraries false
+        javaMaxHeapSize "4g"
+        incremental true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            debuggable false
+            jniDebuggable false
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
+            signingConfig signingConfigs.config
+            proguardFile '/home/artem/projects/InternetRadioPlayer/app/proguard-rules.pro'
+        }
+
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+
+}
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+    maven {
+        url "https://jitpack.io"
+    }
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+
+}
+dependencies {
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.6'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.1.0'
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.google.dagger:dagger:2.6'
+    compile 'com.jakewharton:butterknife:8.1.0'
+    compile 'com.jakewharton.timber:timber:4.3.1'
+    testCompile 'junit:junit:4.12'
+    compile 'com.github.bumptech.glide:glide:3.6.1'
+    compile 'de.hdodenhof:circleimageview:1.3.0'
+    compile 'com.google.android.gms:play-services-contextmanager:9.4.0'
+    compile 'com.google.android.gms:play-services:9.4.0'
+    compile 'com.google.android.gms:play-services-auth:9.4.0'
+    compile 'com.google.android.gms:play-services-maps:9.4.0'
+    compile 'com.google.android.gms:play-services-appinvite:9.4.0'
+    // Firebase
+    compile 'com.google.firebase:firebase-database:9.4.0'
+    compile 'com.google.firebase:firebase-auth:9.4.0'
+    compile 'com.google.firebase:firebase-config:9.4.0'
+    compile 'com.google.firebase:firebase-messaging:9.4.0'
+    compile 'com.google.firebase:firebase-crash:9.4.0'
+    compile 'com.google.firebase:firebase-core:9.4.0'
+    // Firebase UI
+    compile 'com.firebaseui:firebase-ui-database:0.4.0'
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support:support-annotations:25.0.0'
+    compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
+    compile 'com.android.support:appcompat-v7:25.0.0'
+    compile 'com.android.support:design:25.0.0'
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
+    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'io.reactivex:rxjava:1.1.9'
+}
+
+apply plugin: 'com.google.gms.google-services'
