@@ -32,9 +32,8 @@ android {
         abortOnError false
     }
     dexOptions {
-        preDexLibraries false
+        preDexLibraries true
         javaMaxHeapSize "4g"
-        incremental true
     }
     buildTypes {
         release {
@@ -93,10 +92,6 @@ dependencies {
     compile 'com.google.firebase:firebase-core:9.4.0'
     // Firebase UI
     compile 'com.firebaseui:firebase-ui-database:0.4.0'
-    androidTestCompile 'junit:junit:4.12'
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support:support-annotations:25.0.0'
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
     compile 'com.android.support:appcompat-v7:25.0.0'
     compile 'com.android.support:design:25.0.0'
