@@ -61,7 +61,25 @@
     <string name="error_loading_places">Oops, there was an error!</string>
     <string name="error_no_places">Oops, no places to show!</string>
 
+    <!-- Activity detection strings -->
+    <string name="in_vehicle">In a vehicle</string>
+    <string name="on_bicycle">On a bicycle</string>
+    <string name="on_foot">On foot</string>
+    <string name="running">Running</string>
+    <string name="still">Still</string>
+    <string name="tilting">Tilting</string>
+    <string name="unknown">Unknown activity</string>
+    <string name="walking">Walking</string>
+    <string name="unidentifiable_activity">Unidentifiable activity: %1$d</string>
 
+    <string name="detected_activities_title">Detected Activities</string>
+
+    <string name="request_activity_updates">Request updates</string>
+    <string name="remove_activity_updates">Remove updates</string>
+    <string name="activity_updates_added">Activity updates added</string>
+    <string name="activity_updates_removed">Activity updates removed</string>
+
+    <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
     <!-- User Activities Activity -->
     <string name="text_activity_time">Activity Start: %s</string>
     <string name="text_elapsed_time">Elapsed Time: %s</string>
@@ -100,5 +118,11 @@
 
     <!-- Error messages -->
     <string name="error_general">Oops, there was an error@</string>
+    <string name="no_location_data_provided">No location data provided</string>
+    <string name="service_not_available">not available</string>
+    <string name="invalid_lat_long_used">invalid latency used</string>
+    <string name="no_address_found">no address</string>
+    <string name="address_found">address found</string>
+    <string name="no_geocoder_available">no geocoder available</string>
 
 </resources>

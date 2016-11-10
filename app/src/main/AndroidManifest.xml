@@ -12,46 +12,26 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION"/>
 
     <application
+        android:name="com.stc.meetme.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDH1eEoo3t9fN-rWQVu4RWTnaV7-toadD4" />
+            android:value="AIzaSyDH1eEoo3t9fN-rWQVu4RWTnaV7-toadD4"/>
         <meta-data
             android:name="com.google.android.awareness.API_KEY"
             android:value="AIzaSyDH1eEoo3t9fN-rWQVu4RWTnaV7-toadD4"/>
+
         <activity
             android:name="com.hitherejoe.aware.ui.main.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="com.hitherejoe.aware.ui.snapshot.headphone.HeadphoneActivity" />
-        <activity android:name="com.hitherejoe.aware.ui.snapshot.weather.WeatherActivity" />
-        <activity android:name="com.hitherejoe.aware.ui.snapshot.places.PlacesActivity" />
-        <activity android:name="com.hitherejoe.aware.ui.snapshot.user.UserActivity" />
-        <activity android:name="com.hitherejoe.aware.ui.snapshot.location.LocationActivity" />
-        <activity android:name="com.hitherejoe.aware.ui.snapshot.beacons.BeaconActivity" />
-        <activity android:name="com.hitherejoe.aware.ui.fence.headphone.HeadphoneFenceActivity" />
-        <activity android:name="com.hitherejoe.aware.ui.fence.user.DetectedActivityFenceActivity" />
-        <activity android:name="com.hitherejoe.aware.ui.fence.location.LocationFenceActivity" />
-        <activity android:name="com.hitherejoe.aware.ui.fence.time.TimeFenceActivity" />
-        <activity android:name="com.hitherejoe.aware.ui.fence.beacon.BeaconFenceActivity" />
-
-        <activity android:name=".ui.UsersListActivity">
-
         </activity>
         <activity android:name=".ui.SignInActivity"/>
 
@@ -72,24 +52,46 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".ui.StartActivity">
+        <activity
+            android:name=".ui.StartActivity"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
 
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
         <activity android:name=".ui.ChatActivity">
             <intent-filter>
                 <action android:name="com.stc.firebase.android.chat.INTENT_ACTION_CHAT"/>
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps">
         </activity>
+        <activity android:name="com.hitherejoe.aware.ui.snapshot.headphone.HeadphoneActivity"/>
+        <activity android:name="com.hitherejoe.aware.ui.snapshot.weather.WeatherActivity"/>
+        <activity android:name="com.hitherejoe.aware.ui.snapshot.places.PlacesActivity"/>
+        <activity android:name="com.hitherejoe.aware.ui.snapshot.user.UserActivity"/>
+        <activity android:name="com.hitherejoe.aware.ui.snapshot.location.LocationActivity"/>
+        <activity android:name="com.hitherejoe.aware.ui.snapshot.beacons.BeaconActivity"/>
+        <activity android:name="com.hitherejoe.aware.ui.fence.headphone.HeadphoneFenceActivity"/>
+        <activity android:name="com.hitherejoe.aware.ui.fence.user.DetectedActivityFenceActivity"/>
+        <activity android:name="com.hitherejoe.aware.ui.fence.location.LocationFenceActivity"/>
+        <activity android:name="com.hitherejoe.aware.ui.fence.time.TimeFenceActivity"/>
+        <activity android:name="com.hitherejoe.aware.ui.fence.beacon.BeaconFenceActivity"/>
+        <activity android:name=".ui.UsersListActivity"/>
 
+        <service
+            android:name=".DetectedActivityIntentService"
+            android:exported="false">
+        </service>
 
-
-
+        <service
+            android:name=".DetectedPlacesIntentService"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>

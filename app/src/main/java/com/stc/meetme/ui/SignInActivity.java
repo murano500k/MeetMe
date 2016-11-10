@@ -46,7 +46,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.hitherejoe.aware.ui.main.MainActivity;
 import com.stc.meetme.R;
 import com.stc.meetme.model.User;
 
@@ -207,7 +206,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 		Toast.makeText(this, "Welcome " + username, Toast.LENGTH_SHORT).show();
 		mProgressBar.setVisibility(View.GONE);
 		mSignInButton.setVisibility(View.VISIBLE);
-		startActivity(new Intent(SignInActivity.this, MainActivity.class));
+		startActivity(new Intent(SignInActivity.this, StartActivity.class));
 		finish();
 	}
 
