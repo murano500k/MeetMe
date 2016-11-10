@@ -2,18 +2,27 @@ package com.stc.meetme;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.stc.meetme.model.UserPosition;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static com.stc.meetme.Constants.FIELD_DB_USER_POSITION;
+import static com.stc.meetme.Constants.TABLE_DB_USER_STATUSES;
 
 /**
  * Asynchronously handles an intent using a worker thread. Receives a ResultReceiver object and a
@@ -27,7 +36,11 @@ public class DetectedPlacesIntentService extends IntentService {
      * The receiver where results are forwarded from this service.
      */
     protected ResultReceiver mReceiver;
+	private SharedPreferences prefs;
 
+	private DatabaseReference mFirebaseDatabaseReference;
+
+	private String currentUserId;
     /**
      * This constructor is required, and calls the super IntentService(String)
      * constructor with the name for a worker thread.
@@ -37,19 +50,17 @@ public class DetectedPlacesIntentService extends IntentService {
         super(TAG);
     }
 
-    /**
-     * Tries to get the location address using a Geocoder. If successful, sends an address to a
-     * result receiver. If unsuccessful, sends an error message instead.
-     * Note: We define a {@link android.os.ResultReceiver} in * MainActivity to process content
-     * sent from this service.
-     *
-     * This service calls this method from the default worker thread with the intent that started
-     * the service. When this method returns, the service automatically stops.
-     */
-    @Override
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+		currentUserId = prefs.getString(Constants.SETTINGS_DB_UID, null);
+	}
+
+	@Override
     protected void onHandleIntent(Intent intent) {
         String errorMessage = "";
-
         mReceiver = intent.getParcelableExtra(Constants.RECEIVER);
 
         // Check if receiver was properly registered.
@@ -60,7 +71,7 @@ public class DetectedPlacesIntentService extends IntentService {
 
         // Get the location passed to this service through an extra.
         Location location = intent.getParcelableExtra(Constants.LOCATION_DATA_EXTRA);
-
+		location.getAccuracy();
         // Make sure that the location data was really sent over through an extra. If it wasn't,
         // send an error error message and return.
         if (location == null) {
@@ -69,20 +80,17 @@ public class DetectedPlacesIntentService extends IntentService {
             deliverResultToReceiver(Constants.FAILURE_RESULT, errorMessage);
             return;
         }
+	    UserPosition userPosition=new UserPosition();
+	    userPosition.setLat(location.getLatitude());
+	    userPosition.setLong(location.getLongitude());
+	    userPosition.setTimestamp(location.getTime());
+	    userPosition.setAccuracy(location.getAccuracy());
 
-        // Errors could still arise from using the Geocoder (for example, if there is no
-        // connectivity, or if the Geocoder is given illegal location data). Or, the Geocoder may
-        // simply not have an address for a location. In all these cases, we communicate with the
-        // receiver using a resultCode indicating failure. If an address is found, we use a
-        // resultCode indicating success.
 
-        // The Geocoder used in this sample. The Geocoder's responses are localized for the given
-        // Locale, which represents a specific geographical or linguistic region. Locales are used
-        // to alter the presentation of information such as numbers or dates to suit the conventions
-        // in the region they describe.
+
+
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
-        // Address found using the Geocoder.
         List<Address> addresses = null;
 
         try {
@@ -115,6 +123,8 @@ public class DetectedPlacesIntentService extends IntentService {
             deliverResultToReceiver(Constants.FAILURE_RESULT, errorMessage);
         } else {
             Address address = addresses.get(0);
+	        String addressLines="";
+
             ArrayList<String> addressFragments = new ArrayList<String>();
 
             // Fetch the address lines using {@code getAddressLine},
@@ -128,11 +138,17 @@ public class DetectedPlacesIntentService extends IntentService {
             // getCountryName() ("United States", for example)
             for(int i = 0; i < address.getMaxAddressLineIndex(); i++) {
                 addressFragments.add(address.getAddressLine(i));
+	            addressLines+=address.getAddressLine(i);
             }
             Log.i(TAG, getString(R.string.address_found));
             deliverResultToReceiver(Constants.SUCCESS_RESULT,
                     TextUtils.join(System.getProperty("line.separator"), addressFragments));
+
+	        userPosition.setPlaceAddress(addressLines);
+	        userPosition.setPlaceName(address.getFeatureName());
         }
+		mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId)
+				.child(FIELD_DB_USER_POSITION).setValue(userPosition);
     }
 
     /**

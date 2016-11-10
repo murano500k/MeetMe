@@ -87,14 +87,16 @@
             android:name=".DetectedActivityIntentService"
             android:exported="false">
         </service>
-<<<<<<< HEAD
-
         <service
             android:name=".DetectedPlacesIntentService"
             android:exported="false">
         </service>
-=======
->>>>>>> 1aa58838d6074408c82bdc14e796c47d1695b8ee
+
+        <activity
+            android:name=".ui.ObserveActivity"
+            android:label="@string/title_activity_observe"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

@@ -48,6 +48,7 @@ import com.stc.meetme.Constants;
 import com.stc.meetme.DetectedActivityIntentService;
 import com.stc.meetme.DetectedPlacesIntentService;
 import com.stc.meetme.R;
+import com.stc.meetme.model.UserActivity;
 
 import java.util.ArrayList;
 
@@ -57,11 +58,12 @@ import timber.log.Timber;
 
 import static com.stc.meetme.Constants.ADDRESS_REQUESTED_KEY;
 import static com.stc.meetme.Constants.FIELD_DB_TOKEN;
+import static com.stc.meetme.Constants.INTENT_EXTRA_OBSERVE_UID;
 import static com.stc.meetme.Constants.LOCATION_ADDRESS_KEY;
 import static com.stc.meetme.Constants.SETTINGS_DB_TOKEN;
 import static com.stc.meetme.Constants.SETTINGS_DB_UID;
-import static com.stc.meetme.Constants.TABLE_DB_DATA;
 import static com.stc.meetme.Constants.TABLE_DB_USERS;
+import static com.stc.meetme.Constants.TABLE_DB_USER_STATUSES;
 
 
 public class StartActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -96,6 +98,9 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 	@BindView(R.id.buttonRemoveAct)
 	Button buttonRemoveActivityUpdates;
 
+	@BindView(R.id.buttonObserve)
+	Button buttonObserve;
+
 	protected ActivityDetectionBroadcastReceiver mBroadcastReceiver;
 
 	private GoogleApiClient mGoogleApiClient;
@@ -129,7 +134,6 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 		ButterKnife.bind(this);
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
 			actionBar.setTitle("My current status");
 		}
 		mAddressRequested = false;
@@ -161,6 +165,7 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 		buttonRefreshLoc.setOnClickListener(this::fetchPlaceButtonHandler);
 		buttonRequestActivityUpdates.setOnClickListener(this::requestActivityUpdatesButtonHandler);
 		buttonRemoveActivityUpdates.setOnClickListener(this::removeActivityUpdatesButtonHandler);
+		buttonObserve.setOnClickListener(view -> startObserve(currentUserId));
 
 		mPlacesResultReceiver = new PlacesResultReceiver(new Handler());
 		mBroadcastReceiver = new ActivityDetectionBroadcastReceiver();
@@ -183,11 +188,20 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 		setupGoogleApiClient();
 		registerActivityValueEventListener();
 	}
+	private void startObserve(String currentUserId) {
+		if(currentUserId==null) showSnap("NULL USER. OBSERVE FAILED");
+		else{
+			Timber.w("startObserve uid=%s", currentUserId);
+			Intent intent=new Intent(this, ObserveActivity.class);
+			intent.putExtra(INTENT_EXTRA_OBSERVE_UID, currentUserId);
+			startActivity(intent);
+		}
+	}
 
 
 	private void unRegisterActivityValueEventListener() {
 		if (activityValueEventListener != null)
-			mFirebaseDatabaseReference.child(TABLE_DB_DATA).child(currentUserId).removeEventListener(activityValueEventListener);
+			mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId).removeEventListener(activityValueEventListener);
 	}
 
 	private void registerActivityValueEventListener() {
@@ -206,7 +220,7 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 				}
 			};
 		if (currentUserId != null && mDetectedActivity != null)
-			mFirebaseDatabaseReference.child(TABLE_DB_DATA).child(currentUserId).addValueEventListener(activityValueEventListener);
+			mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId).addValueEventListener(activityValueEventListener);
 	}
 
 	private void setupGoogleApiClient() {
@@ -369,9 +383,15 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 	}
 
 	protected void updateDetectedActivitiesList(ArrayList<DetectedActivity> detectedActivities) {
+		UserActivity userActivity=null;
 		if (detectedActivities != null && !detectedActivities.isEmpty())
-			mDetectedActivity = DetectedActivityIntentService.getActString(detectedActivities, this);
-		if (mDetectedActivity != null) textActivity.setText(mDetectedActivity);
+			userActivity = DetectedActivityIntentService.getDbUserActivity(detectedActivities, this);
+		if (userActivity != null) {
+			mDetectedActivity="";
+			mDetectedActivity+=userActivity.getConfidence()+"% "+ userActivity.getActivity()+"\n";
+			mDetectedActivity+=userActivity.getTimestamp();
+			textActivity.setText(mDetectedActivity);
+		}else textActivity.setText("err");
 	}
 
 

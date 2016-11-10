@@ -47,17 +47,33 @@ public final class Constants {
 			DetectedActivity.TILTING,
 			DetectedActivity.UNKNOWN
 	};
+	public static final String INTENT_EXTRA_OBSERVE_UID = "com.stc.firebase.android.chat.INTENT_EXTRA_OBSERVE_UID";
+
+
 	public static final String SETTINGS_DB_TOKEN = "com.stc.firebase.android.chat.SETTINGS_DB_TOKEN";
 	public static final String SETTINGS_IS_ACTIVE = "com.stc.firebase.android.chat.ui.SETTINGS_IS_ACTIVE";
 	public static final String SETTINGS_CHATTING_WITH = "com.stc.firebase.android.chat.ui.SETTINGS_CHATTING_WITH";
 
 	public static final String SETTINGS_DB_UID = "com.stc.firebase.android.chat.SETTINGS_DB_UID";
+
 	public static final String TABLE_DB_USERS = "users";
-	public static final String TABLE_DB_MESSAGES = "messages";
-	public static final String TABLE_DB_DATA = "data";
+	public static final String TABLE_DB_USER_STATUSES = "user_statuses";
+
+	public static final String FIELD_DB_USER_POSITION = "user_position";
+	public static final String FIELD_DB_PLACE_NAME = "place_name";
+	public static final String FIELD_DB_PLACE_ADDRESS = "place_address";
+	public static final String FIELD_DB_LONG = "long";
+	public static final String FIELD_DB_LAT = "lat";
+	public static final String FIELD_DB_POSITION_TIMESTAMP= "position_timestamp";
+	public static final String FIELD_DB_POSITION_ACCURACY = "position_accuracy";
+
+	public static final String FIELD_DB_USER_ACTIVITY = "user_activity";
+	public static final String FIELD_DB_ACTIVITY_TIMESTAMP= "activity_timestamp";
 	public static final String FIELD_DB_ACTIVITY = "activity";
-	public static final String FIELD_DB_PLACE = "place";
-	public static final String FIELD_DB_LOCATION_ACCURACY = "location_accuracy";
+	public static final String FIELD_DB_ACTIVITY_CONFIDENCE = "activity_confidence";
+
+
+
 	public static final String FIELD_DB_NAME = "name";
 	public static final String FIELD_DB_TOKEN = "token";
 	public static final String FIELD_DB_EMAIL = "email";
@@ -67,7 +83,9 @@ public final class Constants {
 	public static final String FIELD_DB_TEXT = "text";
 	public static final String FIELD_DB_SENDERID = "senderId";
 	public static final String FIELD_DB_RECIEVERID = "receiverId";
-	public static final String FIELD_DB_TIMESTAMP= "timestamp";
+
+
+	public static final String TABLE_DB_MESSAGES = "messages";
 	public static final int NOTIFICATION_ID_CHAT = 1465;
 	public static final int NOTIFICATION_ID_MAIN = 889;
 	public static final int NOTIFICATION_PENDING_INTENT_CHAT = 4456;

@@ -37,7 +37,6 @@ import com.stc.meetme.notification.NotificationSender;
 
 import java.util.ArrayList;
 
-import static com.stc.meetme.Constants.FIELD_DB_TIMESTAMP;
 import static com.stc.meetme.Constants.NOTIFICATION_ID_CHAT;
 import static com.stc.meetme.Constants.NOTIFICATION_ID_MAIN;
 import static com.stc.meetme.Constants.SETTINGS_CHATTING_WITH;
@@ -203,7 +202,7 @@ public class ChatActivity extends AppCompatActivity implements
 		mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 		Log.w("TAG", "CURRENT MESSAGEID: "+messageId);
 
-		mFirebaseDatabaseReference.child(TABLE_DB_MESSAGES).orderByChild(FIELD_DB_TIMESTAMP).addChildEventListener(new ChildEventListener() {
+		/*mFirebaseDatabaseReference.child(TABLE_DB_MESSAGES).orderByChild(FIELD_DB_TIMESTAMP).addChildEventListener(new ChildEventListener() {
 			@Override
 			public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 				Message message = dataSnapshot.getValue(Message.class);
@@ -240,7 +239,7 @@ public class ChatActivity extends AppCompatActivity implements
 				Log.e(TAG, "onCancelled");
 				finish();
 			}
-		});
+		});*/
 
 	}
 	public void onSendButtonClicked(){

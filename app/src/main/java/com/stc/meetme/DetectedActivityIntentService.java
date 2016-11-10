@@ -12,10 +12,12 @@ import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.stc.meetme.model.UserActivity;
 
 import java.util.ArrayList;
 
-import static com.stc.meetme.Constants.TABLE_DB_DATA;
+import static com.stc.meetme.Constants.FIELD_DB_USER_ACTIVITY;
+import static com.stc.meetme.Constants.TABLE_DB_USER_STATUSES;
 
 public class DetectedActivityIntentService extends IntentService {
 
@@ -23,7 +25,7 @@ public class DetectedActivityIntentService extends IntentService {
 
 	private SharedPreferences prefs;
 
-	String mDetectedActivity;
+	UserActivity mDetectedActivity;
 
 	private DatabaseReference mFirebaseDatabaseReference;
 
@@ -46,27 +48,25 @@ public class DetectedActivityIntentService extends IntentService {
 	protected void onHandleIntent(Intent intent) {
 		ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
 		Intent localIntent = new Intent(Constants.BROADCAST_ACTION);
-
-		// Get the list of the probable activities associated with the current state of the
-		// device. Each activity is associated with a confidence level, which is an int between
-		// 0 and 100.
 		ArrayList<DetectedActivity> detectedActivities = (ArrayList) result.getProbableActivities();
 
-		// Log each activity.
-		mDetectedActivity = getActString(detectedActivities, this);
-		if(currentUserId!=null && mDetectedActivity!=null)
-			mFirebaseDatabaseReference.child(TABLE_DB_DATA).child(currentUserId).setValue(mDetectedActivity);
+		mDetectedActivity = getDbUserActivity(detectedActivities, this);
 
-			// Broadcast the list of detected activities.
-			localIntent.putExtra(Constants.ACTIVITY_EXTRA, detectedActivities);
-			LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+		if(currentUserId!=null && mDetectedActivity!=null){
+			mDetectedActivity.setTimestamp(result.getTime());
+			mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId)
+					.child(FIELD_DB_USER_ACTIVITY).setValue(mDetectedActivity);
+		}
+
+		localIntent.putExtra(Constants.ACTIVITY_EXTRA, detectedActivities);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
 	}
 
-	public static String getActString(ArrayList<DetectedActivity> detectedActivities, Context context) {
+	public static UserActivity getDbUserActivity(ArrayList<DetectedActivity> detectedActivities, Context context) {
 		Log.i(TAG, "activities detected");
 		if (detectedActivities == null || detectedActivities.isEmpty()){
 			Log.e("ERROR", "activities empty");
-		return "activities empty";
+		return null;
 		}
 		else {
 			DetectedActivity da = detectedActivities.get(0);
@@ -74,10 +74,10 @@ public class DetectedActivityIntentService extends IntentService {
 					context,
 					da.getType()) + " " + da.getConfidence() + "%"
 			);
-			return Constants.getActivityString(
-					context,
-					da.getType()) + " " + da.getConfidence() + "%";
+			UserActivity userActivity = new UserActivity();
+			userActivity.setActivity(Constants.getActivityString(context, da.getType()));
+			userActivity.setConfidence( da.getConfidence());
+			return userActivity;
 		}
 	}
-
 }
