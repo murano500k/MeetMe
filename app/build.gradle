@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'android-apt'
 
 
 android {
@@ -21,9 +21,6 @@ android {
         versionName "1.0"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        jackOptions {
-            enabled true
-        }
     }
     lintOptions {
         textReport true
@@ -32,7 +29,7 @@ android {
         abortOnError false
     }
     dexOptions {
-        preDexLibraries true
+        /*preDexLibraries true*/
         javaMaxHeapSize "4g"
     }
     buildTypes {
@@ -45,13 +42,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard-rules.pro'
             signingConfig signingConfigs.config
-            proguardFile '/home/artem/projects/InternetRadioPlayer/app/proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            shrinkResources false
+            debuggable true
+            zipAlignEnabled false
         }
 
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
     }
 
 
@@ -69,8 +67,11 @@ repositories {
 
 }
 dependencies {
+    compile 'com.airbnb:deeplinkdispatch:2.0.1'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.6'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.1.0'
+    apt 'com.airbnb:deeplinkdispatch-processor:2.0.1'
+
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.google.dagger:dagger:2.6'
     compile 'com.jakewharton:butterknife:8.1.0'
@@ -99,8 +100,6 @@ dependencies {
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
-    compile 'io.reactivex:rxandroid:1.2.1'
-    compile 'io.reactivex:rxjava:1.1.9'
 }
 
 apply plugin: 'com.google.gms.google-services'

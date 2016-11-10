@@ -48,6 +48,7 @@ import com.stc.meetme.Constants;
 import com.stc.meetme.DetectedActivityIntentService;
 import com.stc.meetme.DetectedPlacesIntentService;
 import com.stc.meetme.R;
+import com.stc.meetme.model.UserActivity;
 
 import java.util.ArrayList;
 
@@ -56,12 +57,10 @@ import butterknife.ButterKnife;
 import timber.log.Timber;
 
 import static com.stc.meetme.Constants.ADDRESS_REQUESTED_KEY;
-import static com.stc.meetme.Constants.FIELD_DB_TOKEN;
+import static com.stc.meetme.Constants.INTENT_EXTRA_OBSERVE_UID;
 import static com.stc.meetme.Constants.LOCATION_ADDRESS_KEY;
-import static com.stc.meetme.Constants.SETTINGS_DB_TOKEN;
 import static com.stc.meetme.Constants.SETTINGS_DB_UID;
-import static com.stc.meetme.Constants.TABLE_DB_DATA;
-import static com.stc.meetme.Constants.TABLE_DB_USERS;
+import static com.stc.meetme.Constants.TABLE_DB_USER_STATUSES;
 
 
 public class StartActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -96,20 +95,16 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 	@BindView(R.id.buttonRemoveAct)
 	Button buttonRemoveActivityUpdates;
 
+	@BindView(R.id.buttonObserve)
+	Button buttonObserve;
+
 	protected ActivityDetectionBroadcastReceiver mBroadcastReceiver;
 
 	private GoogleApiClient mGoogleApiClient;
 
-	private SharedPreferences prefs;
-
 	String mDetectedActivity;
+
 	protected Location mLastLocation;
-
-	private DatabaseReference mFirebaseDatabaseReference;
-
-	private FirebaseAuth mFirebaseAuth;
-
-	private FirebaseUser mFirebaseUser;
 
 	private String currentUserId;
 
@@ -121,15 +116,19 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 
 	private PlacesResultReceiver mPlacesResultReceiver;
 
+	private FirebaseAuth mFirebaseAuth;
+	SharedPreferences prefs;
+	private DatabaseReference mFirebaseDatabaseReference;
+	private FirebaseUser mFirebaseUser;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_start);
 		ButterKnife.bind(this);
+
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
 			actionBar.setTitle("My current status");
 		}
 		mAddressRequested = false;
@@ -145,22 +144,38 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 			return;
 		}
 		mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+
 		currentUserId = PreferenceManager.getDefaultSharedPreferences(this).getString(SETTINGS_DB_UID, null);
 
-		if (currentUserId != null) {
-			if (prefs.getString(SETTINGS_DB_TOKEN, null) != null) {
-				Log.w("SAVE SUCCESS", "SAVE SUCCESS");
-				mFirebaseDatabaseReference
-						.child(TABLE_DB_USERS)
-						.child(currentUserId)
-						.child(FIELD_DB_TOKEN)
-						.setValue(prefs.getString(SETTINGS_DB_TOKEN, null));
-			} else Log.e("SAVE ERROR", " token null");
-		} else Log.e("SAVE ERROR", "uid null");
+		if (currentUserId == null) {
+			Log.e("SAVE ERROR", "uid null");
+			return;
+		}
 
-		buttonRefreshLoc.setOnClickListener(this::fetchPlaceButtonHandler);
-		buttonRequestActivityUpdates.setOnClickListener(this::requestActivityUpdatesButtonHandler);
-		buttonRemoveActivityUpdates.setOnClickListener(this::removeActivityUpdatesButtonHandler);
+		buttonRefreshLoc.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				fetchPlaceButtonHandler(view);
+			}
+		});
+		buttonRequestActivityUpdates.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				requestActivityUpdatesButtonHandler(view);
+			}
+		});
+		buttonRemoveActivityUpdates.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				removeActivityUpdatesButtonHandler(view);
+			}
+		});
+		buttonObserve.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				startObserve(currentUserId);
+			}
+		});
 
 		mPlacesResultReceiver = new PlacesResultReceiver(new Handler());
 		mBroadcastReceiver = new ActivityDetectionBroadcastReceiver();
@@ -184,10 +199,20 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 		registerActivityValueEventListener();
 	}
 
+	private void startObserve(String currentUserId) {
+		if(currentUserId==null) showSnap("NULL USER. OBSERVE FAILED");
+		else{
+			Timber.w("startObserve uid=%s", currentUserId);
+			Intent intent=new Intent(this, ObserveActivity.class);
+			intent.putExtra(INTENT_EXTRA_OBSERVE_UID, currentUserId);
+			startActivity(intent);
+		}
+	}
+
 
 	private void unRegisterActivityValueEventListener() {
 		if (activityValueEventListener != null)
-			mFirebaseDatabaseReference.child(TABLE_DB_DATA).child(currentUserId).removeEventListener(activityValueEventListener);
+			mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId).removeEventListener(activityValueEventListener);
 	}
 
 	private void registerActivityValueEventListener() {
@@ -195,9 +220,10 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 			activityValueEventListener = new ValueEventListener() {
 				@Override
 				public void onDataChange(DataSnapshot dataSnapshot) {
+					/*
 					String result = dataSnapshot.getValue(String.class);
 					Timber.w(result);
-					if (result != null) textActivity.setText(result);
+					if (result != null) textActivity.setText(result);*/
 				}
 
 				@Override
@@ -206,7 +232,7 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 				}
 			};
 		if (currentUserId != null && mDetectedActivity != null)
-			mFirebaseDatabaseReference.child(TABLE_DB_DATA).child(currentUserId).addValueEventListener(activityValueEventListener);
+			mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId).addValueEventListener(activityValueEventListener);
 	}
 
 	private void setupGoogleApiClient() {
@@ -215,7 +241,6 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 				.addOnConnectionFailedListener(this)
 				.addApi(Awareness.API)
 				.addApi(LocationServices.API)
-
 				.addApi(ActivityRecognition.API)
 
 				.build();
@@ -226,17 +251,23 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 	@Override
 	protected void onStart() {
 		super.onStart();
-		mGoogleApiClient.connect();
+		if (!mGoogleApiClient.isConnected())
+			mGoogleApiClient.connect();
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
+
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 		if (mGoogleApiClient.isConnected()) {
 			mGoogleApiClient.disconnect();
 		}
 	}
-
 
 	@Override
 	protected void onResume() {
@@ -369,9 +400,15 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 	}
 
 	protected void updateDetectedActivitiesList(ArrayList<DetectedActivity> detectedActivities) {
+		UserActivity userActivity=null;
 		if (detectedActivities != null && !detectedActivities.isEmpty())
-			mDetectedActivity = DetectedActivityIntentService.getActString(detectedActivities, this);
-		if (mDetectedActivity != null) textActivity.setText(mDetectedActivity);
+			userActivity = DetectedActivityIntentService.getDbUserActivity(detectedActivities, this);
+		if (userActivity != null) {
+			mDetectedActivity="";
+			mDetectedActivity+=userActivity.getConfidence()+"% "+ userActivity.getActivity()+"\n";
+			mDetectedActivity+=userActivity.getTimestamp();
+			textActivity.setText(mDetectedActivity);
+		}else textActivity.setText("err");
 	}
 
 
@@ -518,4 +555,7 @@ public class StartActivity extends AppCompatActivity implements GoogleApiClient.
 			updateUIWidgets();
 		}
 	}
+
+
+
 }

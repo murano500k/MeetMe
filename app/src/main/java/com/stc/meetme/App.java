@@ -28,6 +28,8 @@ public class App extends Application {
 							+':'+element.getLineNumber();
 				}
 			});
+		}else {
+			Timber.plant(new Timber.DebugTree());
 		}
 	}
 

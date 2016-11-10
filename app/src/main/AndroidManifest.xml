@@ -55,11 +55,7 @@
         <activity
             android:name=".ui.StartActivity"
             android:launchMode="singleTask">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
         <activity android:name=".ui.ChatActivity">
             <intent-filter>
@@ -87,14 +83,28 @@
             android:name=".DetectedActivityIntentService"
             android:exported="false">
         </service>
-<<<<<<< HEAD
-
         <service
             android:name=".DetectedPlacesIntentService"
             android:exported="false">
         </service>
-=======
->>>>>>> 1aa58838d6074408c82bdc14e796c47d1695b8ee
+
+        <activity
+            android:theme="@style/AppTheme"
+        android:name=".ui.ObserveActivity"
+            android:label="@string/title_activity_observe">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="airbnb" />
+
+
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

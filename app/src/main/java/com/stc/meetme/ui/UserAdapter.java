@@ -34,7 +34,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 	public void onBindViewHolder(UserViewHolder holder, int position) {
 		final User user = list.get(position);
 
-		holder.userEmail.setText(user.getEmail());
 		holder.userName.setText(user.getName());
 		if (user.getPhotoUrl() == null) {
 			holder.userPhoto.setImageDrawable(ContextCompat.getDrawable(activity,
@@ -75,7 +74,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 	public static class UserViewHolder extends RecyclerView.ViewHolder {
 		public TextView userName;
 		public CircleImageView userPhoto;
-		public TextView userEmail;
 		public View root;
 
 		public UserViewHolder(View v) {
@@ -83,7 +81,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 			root=v;
 			userName = (TextView) v.findViewById(R.id.userName);
 			userPhoto = (CircleImageView) v.findViewById(R.id.userImage);
-			userEmail = (TextView) v.findViewById(R.id.userEmail);
 		}
 	}
 }

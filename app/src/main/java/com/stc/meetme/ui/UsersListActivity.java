@@ -140,7 +140,7 @@ public class UsersListActivity extends AppCompatActivity implements
 		    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 			    User user = dataSnapshot.getValue(User.class);
 			    if(user==null) Log.e("TAG", "NULL USER");
-			    Log.w("TAG", "USER: "+user.getEmail());
+			    Log.w("TAG", "USER: "+user.getName());
 			    if(!TextUtils.equals(
 					    user.getUserId(),
 					    currentUserId

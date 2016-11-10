@@ -6,19 +6,19 @@ package com.stc.meetme.model;
 
 public class User {
 	private String name;
-	private String email;
 	private String photoUrl;
 	private String userId;
+	private String key;
 	private String token;
 
 
 	public User() {
 	}
 
-	public User(String userId, String name, String photoUrl, String email) {
+	public User(String userId, String name, String photoUrl, String key) {
 		this.name = name;
 		this.photoUrl = photoUrl;
-		this.email = email;
+		this.key = key;
 		this.userId=userId;
 
 
@@ -35,8 +35,8 @@ public class User {
 		return token;
 	}
 
-	public String getEmail() {
-		return email;
+	public String getKey() {
+		return key;
 	}
 
 	public String getName() {

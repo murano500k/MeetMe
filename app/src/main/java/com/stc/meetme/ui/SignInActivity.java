@@ -24,6 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -49,6 +50,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.stc.meetme.R;
 import com.stc.meetme.model.User;
 
+import butterknife.BindView;
+
 import static com.stc.meetme.Constants.FIELD_DB_TOKEN;
 import static com.stc.meetme.Constants.SETTINGS_DB_TOKEN;
 import static com.stc.meetme.Constants.SETTINGS_DB_UID;
@@ -66,7 +69,8 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     private FirebaseAuth mFirebaseAuth;
 	SharedPreferences prefs;
 	private DatabaseReference mFirebaseDatabaseReference;
-
+	@BindView(R.id.buttonAnon)
+	Button buttonAnon;
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +96,12 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         mFirebaseAuth = FirebaseAuth.getInstance();
 		mProgressBar.setVisibility(View.GONE);
 		mSignInButton.setVisibility(View.VISIBLE);
+		buttonAnon.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				signInAnonymously();
+			}
+		});
     }
 
 
@@ -100,12 +110,38 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.sign_in_button:
-                signIn();
+                signInGoogle();
                 break;
         }
     }
+	private void signInAnonymously() {
 
-    private void signIn() {
+		mProgressBar.setVisibility(View.VISIBLE);
+		mSignInButton.setVisibility(View.GONE);
+		buttonAnon.setVisibility(View.GONE);
+		// [START signin_anonymously]
+		mFirebaseAuth.signInAnonymously()
+				.addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+					@Override
+					public void onComplete(@NonNull Task<AuthResult> task) {
+						Log.d(TAG, "signInAnonymously:onComplete:" + task.isSuccessful());
+
+						if (!task.isSuccessful()) {
+							Log.w(TAG, "signInAnonymously", task.getException());
+							Toast.makeText(SignInActivity.this, "Authentication failed.",
+									Toast.LENGTH_SHORT).show();
+						} else {
+							addUserToDb();
+
+						}
+						mProgressBar.setVisibility(View.GONE);
+						mSignInButton.setVisibility(View.VISIBLE);
+						buttonAnon.setVisibility(View.VISIBLE);
+					}
+				});
+	}
+
+    private void signInGoogle() {
 	    mProgressBar.setVisibility(View.VISIBLE);
 	    mSignInButton.setVisibility(View.GONE);
 	    Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
@@ -159,8 +195,8 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 		mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
 
-		if(firebaseUser!=null && firebaseUser.getEmail()!=null){
-			final String email = firebaseUser.getEmail();
+		if(firebaseUser!=null){
+			final String uid = firebaseUser.getUid();
 			mFirebaseDatabaseReference.child(TABLE_DB_USERS).addListenerForSingleValueEvent(new ValueEventListener() {
 				@Override
 				public void onDataChange(DataSnapshot dataSnapshot) {
@@ -170,7 +206,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
 					for(DataSnapshot child : dataSnapshot.getChildren()){
 						user = child.getValue(User.class);
-						if(TextUtils.equals(user.getEmail(), email)) {
+						if(TextUtils.equals(user.getUserId(), uid)) {
 							exists=true;
 							key=child.getKey();
 							break;
@@ -213,14 +249,13 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
 	private void createUser() {
 		FirebaseUser firebaseUser = mFirebaseAuth.getCurrentUser();
-		String photoUrl="";
+		String photoUrl=null;
 		if(firebaseUser!=null){
 			if(firebaseUser.getPhotoUrl()!=null)
 				photoUrl=firebaseUser.getPhotoUrl().toString();
 			String key=mFirebaseDatabaseReference.child(TABLE_DB_USERS).push().getKey();
 
-
-			User user=new User(key,firebaseUser.getDisplayName(), photoUrl,firebaseUser.getEmail());
+			User user=new User(firebaseUser.getUid(),firebaseUser.isAnonymous() ? "Anonymous": firebaseUser.getDisplayName(), photoUrl,key);
 			mFirebaseDatabaseReference.child(TABLE_DB_USERS).child(key).setValue(user);
 			saveUidToPrefs(key, firebaseUser.getDisplayName());
 		}else Log.e(TAG, "createUser: ERROR");
