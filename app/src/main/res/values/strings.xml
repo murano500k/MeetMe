@@ -125,5 +125,18 @@
     <string name="address_found">address found</string>
     <string name="no_geocoder_available">no geocoder available</string>
     <string name="title_activity_observe">ObserveActivity</string>
+    <string name="title_activity_base">BaseActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_base_t">BaseTActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_map">Map</string>
+    <string name="title_list">List</string>
+    <string name="title_activity_fake_maps">Map</string>
+    <string name="title_activity_base_list">BaseListActivity</string>
+    <string name="delete_observer_confirm">Remove user from observers list?</string>
+    <string name="error_sharing_disabled">Can\'t add observer, sharing is disabled</string>
+    <string name="subscription_is_not_active">Subscription is not active</string>
 
 </resources>

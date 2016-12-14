@@ -1,86 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-    <LinearLayout
+    <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/content_observe"
         android:orientation="vertical"
         android:fitsSystemWindows="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context="com.stc.meetme.ui.ObserveActivity"
-        tools:showIn="@layout/activity_observe"
-        android:weightSum="2">
-
-    <LinearLayout
-        android:orientation="vertical"
+        tools:context="com.stc.meetme.ui.ObserveActivity">
+    <android.support.design.widget.FloatingActionButton
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-
-        android:id="@+id/layoutNotTarget"
-        android:visibility="gone">
-
-        <TextView
-            android:text="No target to observe"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textViewNoTarget"/>
-    </LinearLayout>
-
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="normal"
+        app:srcCompat="@android:drawable/ic_menu_view"
+        android:id="@+id/floatingActionButton"
+        android:layout_margin="16dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:visibility="gone"/>
     <LinearLayout
+        android:id="@+id/content_observe"
+        android:orientation="vertical"
+        android:fitsSystemWindows="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/activity_layout"
-            android:layout_weight="1"
-            android:background="@color/colorActivityBackground"
-            android:gravity="center">
+            android:layout_height="wrap_content"
+
+            android:id="@+id/layoutNoTarget"
+            android:visibility="gone">
+
             <ProgressBar
                 android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:visibility="gone"/>
 
             <TextView
-                android:text="no timestamp"
-                android:layout_width="wrap_content"
+                android:text="No target to observe"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/textViewTime"/>
+                android:id="@+id/textViewNoTarget"/>
 
-            <TextView
-                android:text="no activity data"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/textViewActivity"/>
 
-            <TextView
-                android:text="no confidence data"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/textViewConfidence"/>
         </LinearLayout>
+
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/position_layout"
-            android:layout_weight="1"
-            android:background="@color/colorPlacesBackground"
-            android:gravity="center">
+            android:layout_height="wrap_content"
+            android:elevation="1dp">
+
+            <TextView
+                android:text="no time data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textViewTimePlaces"
+                android:layout_weight="1"/>
 
             <TextView
                 android:text="no position data"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/textViewPosition"/>
+                android:id="@+id/textViewPosition"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:text="no timestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textViewTimeActivity"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:text="no activity data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textViewActivity"
+                android:layout_weight="1"/>
+
         </LinearLayout>
 
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
     </LinearLayout>
+
+
+
+    </RelativeLayout>

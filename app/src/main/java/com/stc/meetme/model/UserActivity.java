@@ -1,9 +1,6 @@
 package com.stc.meetme.model;
 
-import android.content.Context;
 import android.text.format.DateFormat;
-
-import java.sql.Date;
 
 /**
  * Created by artem on 11/10/16.
@@ -12,32 +9,36 @@ import java.sql.Date;
 public class UserActivity {
 
 	private long timestamp;
-	private String activity;
-	private int confidence;
+	private String activity0;
+	private String activity1;
+	private String activity2;
 
-	public String getFormattedDateTime(Context context){
-		if(timestamp<=0) return null;
-		Date date = new Date(timestamp);
-		return DateFormat.getDateFormat(context).format(date);
-	}
 
 	public UserActivity() {
 	}
 
-	public String getActivity() {
-		return activity;
+	public String getActivity0() {
+		return activity0;
 	}
 
-	public void setActivity(String activity) {
-		this.activity = activity;
+	public void setActivity0(String activity0) {
+		this.activity0 = activity0;
 	}
 
-	public int getConfidence() {
-		return confidence;
+	public String getActivity1() {
+		return activity1;
 	}
 
-	public void setConfidence(int confidence) {
-		this.confidence = confidence;
+	public void setActivity1(String activity1) {
+		this.activity1 = activity1;
+	}
+
+	public String getActivity2() {
+		return activity2;
+	}
+
+	public void setActivity2(String activity2) {
+		this.activity2 = activity2;
 	}
 
 	public long getTimestamp() {
@@ -46,5 +47,23 @@ public class UserActivity {
 
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
+	}
+
+	@Override
+	public String toString() {
+		return "UserActivity{" +
+				"activity0='" + activity0 + '\'' +
+				", timestamp=" + timestamp +
+				", activity1='" + activity1 + '\'' +
+				", activity2='" + activity2 + '\'' +
+				'}';
+	}
+	public String formatDateTime(){
+		if(timestamp<=0) return "ERROR";
+		String date = (DateFormat.format("dd/MM/yyyy HH:mm:ss", timestamp).toString());
+
+		//String time = DateUtils.formatDateTime(context, timestamp, DateUtils.FORMAT_SHOW_TIME);
+		//String date =  DateUtils.formatDateTime(context, timestamp, DateUtils.FORMAT_SHOW_DATE);
+		return date;
 	}
 }

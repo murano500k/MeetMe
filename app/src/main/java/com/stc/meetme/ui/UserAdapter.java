@@ -1,5 +1,6 @@
 package com.stc.meetme.ui;
 
+import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -21,7 +22,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
-	private final UsersListActivity activity;
+	private final Context context;
 	ArrayList<User> list;
 	@Override
 	public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -36,17 +37,17 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
 		holder.userName.setText(user.getName());
 		if (user.getPhotoUrl() == null) {
-			holder.userPhoto.setImageDrawable(ContextCompat.getDrawable(activity,
+			holder.userPhoto.setImageDrawable(ContextCompat.getDrawable(context,
 					R.drawable.ic_account_circle_black_36dp));
 		} else {
-			Glide.with(activity)
+			Glide.with(context)
 					.load(user.getPhotoUrl())
 					.into(holder.userPhoto);
 		}
 		holder.root.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(activity!=null)	activity.startConversation(user.getUserId());
+				/*if(activity!=null)	activity.startConversation(user.getUserId());*/
 			}
 		});
 
@@ -61,8 +62,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 		notifyItemInserted(list.indexOf(user));
 	}
 
-	public UserAdapter(ArrayList<User> list, UsersListActivity activity) {
-		this.activity=activity;
+	public UserAdapter(ArrayList<User> list, Context context) {
+		this.context=context;
 		this.list = list;
 	}
 

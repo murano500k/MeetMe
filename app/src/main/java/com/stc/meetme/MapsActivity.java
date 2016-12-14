@@ -1,28 +1,59 @@
 package com.stc.meetme;
 
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import static com.stc.meetme.Constants.INTENT_EXTRA_OBSERVE_LAT;
+import static com.stc.meetme.Constants.INTENT_EXTRA_OBSERVE_LNG;
+import static com.stc.meetme.Constants.SETTINGS_OBSERVE_UID;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+	private static final String TAG = "MyMaps";
 	private GoogleMap mMap;
+	LatLng observeLatLng;
+	String observeUid;
+	Marker marker;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_maps);
-		// Obtain the SupportMapFragment and get notified when the map is ready to be used.
 		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map);
-		mapFragment.getMapAsync(this);
+		Log.w(TAG, "onCreate:" );
+
+		if(getIntent()!=null && getIntent().getExtras()!=null){
+			Log.e(TAG, "onCreate: ERROR" );
+			if( getIntent().getExtras().containsKey(INTENT_EXTRA_OBSERVE_LNG)
+					&& getIntent().getExtras().containsKey(INTENT_EXTRA_OBSERVE_LAT)){
+				double lat, lng;
+				lat = getIntent().getExtras().getDouble(INTENT_EXTRA_OBSERVE_LAT);
+				lng = getIntent().getExtras().getDouble(INTENT_EXTRA_OBSERVE_LNG);
+				observeLatLng = new LatLng(lat,lng);
+				observeUid= PreferenceManager.getDefaultSharedPreferences(this)
+						.getString(SETTINGS_OBSERVE_UID, null);
+				mapFragment.getMapAsync(this);
+				return;
+			}
+		}
+		Toast.makeText(this, "ERROR", Toast.LENGTH_SHORT).show();
+		Log.e(TAG, "onCreate: ERROR" );
+		//finish();
 	}
+
 
 
 	/**
@@ -37,10 +68,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
 		mMap = googleMap;
+		if(observeLatLng!=null){
+			marker=mMap.addMarker(new MarkerOptions().position(observeLatLng).title(observeUid));
 
-		// Add a marker in Sydney and move the camera
-		LatLng sydney = new LatLng(-34, 151);
-		mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-		mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+			mMap.moveCamera(CameraUpdateFactory.newLatLng(observeLatLng));
+			//mMap.moveCamera(CameraUpdateFactory.zoomIn());
+		}
+
 	}
 }

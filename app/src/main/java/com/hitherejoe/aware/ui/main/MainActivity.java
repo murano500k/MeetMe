@@ -44,7 +44,7 @@ import static com.stc.meetme.Constants.FIELD_DB_TOKEN;
 import static com.stc.meetme.Constants.NOTIFICATION_ID_CHAT;
 import static com.stc.meetme.Constants.NOTIFICATION_ID_MAIN;
 import static com.stc.meetme.Constants.SETTINGS_DB_TOKEN;
-import static com.stc.meetme.Constants.SETTINGS_DB_UID;
+import static com.stc.meetme.Constants.SETTINGS_MY_UID;
 import static com.stc.meetme.Constants.TABLE_DB_USERS;
 
 public class MainActivity extends AppCompatActivity implements
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements
 			    .addApi(Auth.GOOGLE_SIGN_IN_API)
 			    .build();
 	    mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-	    currentUserId = PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString(SETTINGS_DB_UID, null);
+	    currentUserId = PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString(SETTINGS_MY_UID, null);
 
 	    if( currentUserId!=null){
 		    if(prefs.getString(SETTINGS_DB_TOKEN, null)!=null){

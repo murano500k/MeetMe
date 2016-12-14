@@ -20,14 +20,6 @@ public class User {
 		this.photoUrl = photoUrl;
 		this.key = key;
 		this.userId=userId;
-
-
-
-
-
-
-
-
 		token=null;
 	}
 

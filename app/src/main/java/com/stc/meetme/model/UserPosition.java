@@ -1,9 +1,6 @@
 package com.stc.meetme.model;
 
-import android.content.Context;
 import android.text.format.DateFormat;
-
-import java.sql.Date;
 
 /**
  * Created by artem on 11/10/16.
@@ -12,7 +9,7 @@ import java.sql.Date;
 public class UserPosition {
 	private String placeName;
 	private String placeAddress;
-	private double mLong;
+	private double mLng;
 	private double mLat;
 	private long timestamp;
 	private float accuracy;
@@ -25,12 +22,12 @@ public class UserPosition {
 		this.accuracy = accuracy;
 	}
 
-	public double getLong() {
-		return mLong;
+	public double getLng() {
+		return mLng;
 	}
 
-	public void setLong(double mLong) {
-		this.mLong = mLong;
+	public void setLng(double mLng) {
+		this.mLng = mLng;
 	}
 
 	public double getLat() {
@@ -68,10 +65,25 @@ public class UserPosition {
 	public UserPosition() {
 
 	}
-	public String getFormattedDateTime(Context context){
-		if(timestamp<=0) return null;
-		Date date = new Date(timestamp);
-		return DateFormat.getDateFormat(context).format(date);
+
+	public String formatDateTime(){
+		if(timestamp<=0) return "ERROR";
+		String date = (DateFormat.format("dd/MM/yyyy HH:mm:ss", timestamp).toString());
+
+		//String time = DateUtils.formatDateTime(context, timestamp, DateUtils.FORMAT_SHOW_TIME);
+		//String date =  DateUtils.formatDateTime(context, timestamp, DateUtils.FORMAT_SHOW_DATE);
+		return date;
 	}
 
+	@Override
+	public String toString() {
+		return "UserPosition{" +
+				"accuracy=" + accuracy +
+				", placeName='" + placeName + '\'' +
+				", placeAddress='" + placeAddress + '\'' +
+				", mLng=" + mLng +
+				", mLat=" + mLat +
+				", timestamp=" + timestamp +
+				'}';
+	}
 }

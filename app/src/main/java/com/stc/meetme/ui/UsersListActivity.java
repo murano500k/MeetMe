@@ -54,7 +54,7 @@ import static com.stc.meetme.Constants.FIELD_DB_TOKEN;
 import static com.stc.meetme.Constants.NOTIFICATION_ID_CHAT;
 import static com.stc.meetme.Constants.NOTIFICATION_ID_MAIN;
 import static com.stc.meetme.Constants.SETTINGS_DB_TOKEN;
-import static com.stc.meetme.Constants.SETTINGS_DB_UID;
+import static com.stc.meetme.Constants.SETTINGS_MY_UID;
 import static com.stc.meetme.Constants.TABLE_DB_USERS;
 
 
@@ -104,7 +104,7 @@ public class UsersListActivity extends AppCompatActivity implements
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
                 .build();
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-		currentUserId = PreferenceManager.getDefaultSharedPreferences(UsersListActivity.this).getString(SETTINGS_DB_UID, null);
+		currentUserId = PreferenceManager.getDefaultSharedPreferences(UsersListActivity.this).getString(SETTINGS_MY_UID, null);
 
 		if( currentUserId!=null){
 		    if(prefs.getString(SETTINGS_DB_TOKEN, null)!=null){
@@ -209,7 +209,7 @@ public class UsersListActivity extends AppCompatActivity implements
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient);
                 mFirebaseUser = null;
 	            prefs.edit().putString(SETTINGS_DB_TOKEN, null).apply();
-	            prefs.edit().putString(SETTINGS_DB_UID, null).apply();
+	            prefs.edit().putString(SETTINGS_MY_UID, null).apply();
                 startActivity(new Intent(this, SignInActivity.class));
                 return true;
             default:

@@ -27,7 +27,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import static com.stc.meetme.Constants.FIELD_DB_TOKEN;
 import static com.stc.meetme.Constants.SETTINGS_DB_TOKEN;
-import static com.stc.meetme.Constants.SETTINGS_DB_UID;
+import static com.stc.meetme.Constants.SETTINGS_MY_UID;
 import static com.stc.meetme.Constants.TABLE_DB_USERS;
 
 public class FcmTokenRefresher extends FirebaseInstanceIdService {
@@ -49,7 +49,7 @@ public class FcmTokenRefresher extends FirebaseInstanceIdService {
         String token = FirebaseInstanceId.getInstance().getToken();
         Log.d(TAG, "FCM Token: " + token);
 	    mSharedPreferences.edit().putString(SETTINGS_DB_TOKEN, token).apply();
-	    String uId =mSharedPreferences.getString(SETTINGS_DB_UID,null);
+	    String uId =mSharedPreferences.getString(SETTINGS_MY_UID,null);
 	    if(uId!=null){
 		    DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference();
 		    databaseReference.child(TABLE_DB_USERS).child(uId).child(FIELD_DB_TOKEN).setValue(token);

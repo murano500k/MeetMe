@@ -1,6 +1,10 @@
 package com.stc.meetme;
 
 import android.app.Application;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
+
+import com.airbnb.deeplinkdispatch.DeepLinkHandler;
 
 import timber.log.BuildConfig;
 import timber.log.Timber;
@@ -31,6 +35,8 @@ public class App extends Application {
 		}else {
 			Timber.plant(new Timber.DebugTree());
 		}
+		IntentFilter intentFilter = new IntentFilter(DeepLinkHandler.ACTION);
+		LocalBroadcastManager.getInstance(this).registerReceiver(new DeepLinkReceiver(), intentFilter);
 	}
 
 }

@@ -13,6 +13,14 @@ public final class Constants {
 	private Constants() {
 	}
 
+	public static final  long UPDATE_INTERVAL = 10 * 1000;  /* 10 secs */
+	public static final  long FASTEST_INTERVAL = 2000; /* 2 sec */
+
+	public static final int PERMISSION_REQUEST_FINE_LOCATION = 941;
+
+	public static final int CALLBACK_ACTIVITY = 0;
+	public static final int CALLBACK_LOCATION = 1;
+
 	public static final String PACKAGE_NAME = "com.google.android.gms.location.activityrecognition";
 
 	public static final String BROADCAST_ACTION = PACKAGE_NAME + ".BROADCAST_ACTION";
@@ -23,6 +31,8 @@ public final class Constants {
 
 	public static final String ACTIVITY_UPDATES_REQUESTED_KEY = PACKAGE_NAME +
 			".ACTIVITY_UPDATES_REQUESTED";
+	public static final String LOCATION_UPDATES_REQUESTED_KEY = PACKAGE_NAME +
+			".LOCATION_UPDATES_REQUESTED";
 
 	public static final String DETECTED_ACTIVITY = PACKAGE_NAME + ".DETECTED_ACTIVITY";
 
@@ -47,17 +57,34 @@ public final class Constants {
 			DetectedActivity.TILTING,
 			DetectedActivity.UNKNOWN
 	};
+	public static final String ARG_OBSERVE_ID = "com.stc.firebase.android.chat.ARG_OBSERVE_ID";
+	public static final String ARG_COLUMN_COUNT = "column-count";
+	public static final String ARG_LIST_TYPE = "ARG_LIST_TYPE";
+	public static final String ARG_LIST_SUBSCRIPTIONS = "ARG_LIST_SUBSCRIPTIONS";
+	public static final String SETTINGS_STATUS_ACTIVE = "SETTINGS_STATUS_ACTIVE";
+
+	public static final int LIST_TYPE_MY_TARGETS = 623;
+	public static final int LIST_TYPE_MY_OBSERVERS = 622;
 	public static final String INTENT_EXTRA_OBSERVE_UID = "com.stc.firebase.android.chat.INTENT_EXTRA_OBSERVE_UID";
+	public static final String INTENT_EXTRA_OBSERVE_LAT = "com.stc.firebase.android.chat.INTENT_EXTRA_OBSERVE_LAT";
+	public static final String INTENT_EXTRA_OBSERVE_LNG = "com.stc.firebase.android.chat.INTENT_EXTRA_OBSERVE_LNG";
 
 
 	public static final String SETTINGS_DB_TOKEN = "com.stc.firebase.android.chat.SETTINGS_DB_TOKEN";
 	public static final String SETTINGS_IS_ACTIVE = "com.stc.firebase.android.chat.ui.SETTINGS_IS_ACTIVE";
 	public static final String SETTINGS_CHATTING_WITH = "com.stc.firebase.android.chat.ui.SETTINGS_CHATTING_WITH";
 
-	public static final String SETTINGS_DB_UID = "com.stc.firebase.android.chat.SETTINGS_DB_UID";
+	public static final String SETTINGS_MY_UID = "com.stc.firebase.android.chat.SETTINGS_MY_UID";
+	public static final String SETTINGS_OBSERVE_UID = "com.stc.firebase.android.chat.SETTINGS_OBSERVE_UID";
 
 	public static final String TABLE_DB_USERS = "users";
 	public static final String TABLE_DB_USER_STATUSES = "user_statuses";
+	public static final String TABLE_DB_SUBSCRIPTIONS = "subscriptions";
+
+	public static final String FIELD_DB_SUBSCRIPTION_TARGET_ID = "target_id";
+	public static final String FIELD_DB_SUBSCRIPTION_OBSERVER_ID = "observer_id";
+	public static final String FIELD_DB_SUBSCRIPTION_ACTIVE = "active";
+
 
 	public static final String FIELD_DB_USER_POSITION = "user_position";
 	public static final String FIELD_DB_PLACE_NAME = "place_name";

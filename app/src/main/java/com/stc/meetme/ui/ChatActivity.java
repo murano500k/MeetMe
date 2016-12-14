@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import static com.stc.meetme.Constants.NOTIFICATION_ID_CHAT;
 import static com.stc.meetme.Constants.NOTIFICATION_ID_MAIN;
 import static com.stc.meetme.Constants.SETTINGS_CHATTING_WITH;
-import static com.stc.meetme.Constants.SETTINGS_DB_UID;
+import static com.stc.meetme.Constants.SETTINGS_MY_UID;
 import static com.stc.meetme.Constants.SETTINGS_IS_ACTIVE;
 import static com.stc.meetme.Constants.TABLE_DB_MESSAGES;
 import static com.stc.meetme.Constants.TABLE_DB_USERS;
@@ -90,7 +90,7 @@ public class ChatActivity extends AppCompatActivity implements
 			Log.e(TAG, "ERROR NULL");
 			return;
 		}else Log.w(TAG, "SUCCESS "+ recieverId);
-		senderId=prefs.getString(SETTINGS_DB_UID, null);
+		senderId=prefs.getString(SETTINGS_MY_UID, null);
 		updateContent();
 	}
 

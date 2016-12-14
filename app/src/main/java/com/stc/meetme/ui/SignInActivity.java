@@ -54,7 +54,7 @@ import butterknife.BindView;
 
 import static com.stc.meetme.Constants.FIELD_DB_TOKEN;
 import static com.stc.meetme.Constants.SETTINGS_DB_TOKEN;
-import static com.stc.meetme.Constants.SETTINGS_DB_UID;
+import static com.stc.meetme.Constants.SETTINGS_MY_UID;
 import static com.stc.meetme.Constants.TABLE_DB_USERS;
 
 public class SignInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
@@ -220,7 +220,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
 				@Override
 				public void onCancelled(DatabaseError databaseError) {
-					prefs.edit().putString(SETTINGS_DB_UID, null).apply();
+					prefs.edit().putString(SETTINGS_MY_UID, null).apply();
 					Toast.makeText(SignInActivity.this, "CANCELLED", Toast.LENGTH_SHORT).show();
 					mProgressBar.setVisibility(View.GONE);
 					mSignInButton.setVisibility(View.VISIBLE);
@@ -234,7 +234,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 	}
 	private void saveUidToPrefs(String uId, String username) {
 		Log.w("TAG", "new uid to save: "+uId);
-		prefs.edit().putString(SETTINGS_DB_UID, uId).apply();
+		prefs.edit().putString(SETTINGS_MY_UID, uId).apply();
 		if(prefs.getString(SETTINGS_DB_TOKEN, null)!=null) {
 			Log.w("TAG", "SETTINGS_DB_TOKEN: "+prefs.getString(SETTINGS_DB_TOKEN, null));
 			mFirebaseDatabaseReference.child(TABLE_DB_USERS).child(uId).child(FIELD_DB_TOKEN).setValue(prefs.getString(SETTINGS_DB_TOKEN, null));
@@ -242,7 +242,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 		Toast.makeText(this, "Welcome " + username, Toast.LENGTH_SHORT).show();
 		mProgressBar.setVisibility(View.GONE);
 		mSignInButton.setVisibility(View.VISIBLE);
-		startActivity(new Intent(SignInActivity.this, StartActivity.class));
+		startActivity(new Intent(SignInActivity.this, ShareActivity.class));
 		finish();
 	}
 

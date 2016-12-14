@@ -1,21 +1,16 @@
 package com.stc.meetme.ui;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,20 +22,15 @@ import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.stc.meetme.MapsActivity;
@@ -49,7 +39,6 @@ import com.stc.meetme.model.User;
 import com.stc.meetme.model.UserActivity;
 import com.stc.meetme.model.UserPosition;
 
-import butterknife.ButterKnife;
 import timber.log.Timber;
 
 import static android.view.Menu.NONE;
@@ -64,84 +53,31 @@ import static com.stc.meetme.Constants.INTENT_EXTRA_OBSERVE_UID;
 import static com.stc.meetme.Constants.SETTINGS_DB_TOKEN;
 import static com.stc.meetme.Constants.SETTINGS_MY_UID;
 import static com.stc.meetme.Constants.SETTINGS_OBSERVE_UID;
+import static com.stc.meetme.Constants.SETTINGS_STATUS_ACTIVE;
 import static com.stc.meetme.Constants.TABLE_DB_USERS;
 import static com.stc.meetme.Constants.TABLE_DB_USER_STATUSES;
-import static com.stc.meetme.R.id.map;
 import static java.lang.System.currentTimeMillis;
 
 
 @DeepLink("https://f3x9u.app.goo.gl/observe/{id}")
-public class ObserveActivity extends AppCompatActivity implements
-		GoogleApiClient.ConnectionCallbacks,
-		GoogleApiClient.OnConnectionFailedListener,
-		OnMapReadyCallback {
-	protected static final String TAG = "ObserveActivity";
-	public static final String ACTION_DEEP_LINK_COMPLEX = "deep_link_complex";
+public class ObserveMyselfActivity extends ObserveActivity {
+	protected static final String TAG = "ObserveMyselfActivity";
 
-
-	LinearLayout mLayoutNoTarget;
-
-	ProgressBar mProgressBar;
-
-	TextView textPosition;
-
-	TextView textTimeActivity;
-
-	TextView textTimePlaces;
-
-	TextView textActivity;
-
-	String observableUserId;
-
-	String positionString;
-
-	String activityString;
-
-	protected SharedPreferences prefs;
-
-	protected DatabaseReference mFirebaseDatabaseReference;
-
-	protected ValueEventListener statusUpdatesListener;
-	protected FirebaseAuth mFirebaseAuth;
-
-	protected String currentUserId;
-	protected MenuItem menuSharePosition, menuRefresh;
-	protected GoogleApiClient mGoogleApiClient;
-	protected ActionBar actionBar;
-	protected CountDownTimer timer;
-	protected MenuItem menuMap;
-	protected static final int MENU_MAP = 312;
-	protected static final int MENU_SHARE = 959;
-	protected static final int MENU_REFRESH = 958;
-	protected double observeLat;
-	protected double observeLng;
-	protected boolean mapReady=false;
-	protected GoogleMap mMap;
-	protected Marker marker;
-	protected FloatingActionButton fab;
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_observe);
-		ButterKnife.bind(this);
-		observeLat=observeLng=0;
-		textPosition=(TextView) findViewById(R.id.textViewPosition);
-		textTimeActivity =(TextView) findViewById(R.id.textViewTimeActivity);
-		textTimePlaces =(TextView) findViewById(R.id.textViewTimePlaces);
-		textActivity=(TextView) findViewById(R.id.textViewActivity);
-		fab=(FloatingActionButton) findViewById(R.id.fab);
-		mProgressBar=(ProgressBar) findViewById(R.id.progressBar);
-		mLayoutNoTarget=(LinearLayout) findViewById(R.id.layoutNoTarget);
-		actionBar = getSupportActionBar();
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-		mFirebaseAuth = FirebaseAuth.getInstance();
-		setupGoogleApiClient();
-		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-				.findFragmentById(map);
-		mapFragment.getMapAsync(this);
+		fab.setVisibility(VISIBLE);
+		fab.setBackgroundColor(getResources().getColor(prefs.getBoolean(SETTINGS_STATUS_ACTIVE, false) ?
+				R.color.common_google_signin_btn_text_dark_disabled :
+				R.color.colorAccent));
+		fab.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				
+			}
+		});
 	}
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
@@ -198,7 +134,7 @@ public class ObserveActivity extends AppCompatActivity implements
 
 						if (!task.isSuccessful()) {
 							Log.e(TAG, "signInAnonymously", task.getException());
-							Toast.makeText(ObserveActivity.this, "Authentication failed.",
+							Toast.makeText(ObserveMyselfActivity.this, "Authentication failed.",
 									Toast.LENGTH_SHORT).show();
 							mProgressBar.setVisibility(GONE);
 							mLayoutNoTarget.setVisibility(VISIBLE);
@@ -247,7 +183,7 @@ public class ObserveActivity extends AppCompatActivity implements
 				@Override
 				public void onCancelled(DatabaseError databaseError) {
 					prefs.edit().putString(SETTINGS_MY_UID, null).apply();
-					Toast.makeText(ObserveActivity.this, "CANCELLED", Toast.LENGTH_SHORT).show();
+					Toast.makeText(ObserveMyselfActivity.this, "CANCELLED", Toast.LENGTH_SHORT).show();
 					mProgressBar.setVisibility(GONE);
 					mLayoutNoTarget.setVisibility(VISIBLE);
 					Log.e(TAG, "onCancelled");
@@ -257,7 +193,7 @@ public class ObserveActivity extends AppCompatActivity implements
 		}else {
 			mProgressBar.setVisibility(GONE);
 			mLayoutNoTarget.setVisibility(VISIBLE);
-			Toast.makeText(ObserveActivity.this, "LOGIN ERROR", Toast.LENGTH_SHORT).show();
+			Toast.makeText(ObserveMyselfActivity.this, "LOGIN ERROR", Toast.LENGTH_SHORT).show();
 			Log.e(TAG,"LOGIN ERROR");
 		}
 	}
