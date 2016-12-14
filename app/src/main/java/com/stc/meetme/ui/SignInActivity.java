@@ -82,6 +82,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
 		mProgressBar.setVisibility(View.VISIBLE);
 		mSignInButton.setVisibility(View.GONE);
+
         mSignInButton.setOnClickListener(this);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

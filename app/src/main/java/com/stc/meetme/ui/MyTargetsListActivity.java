@@ -16,7 +16,7 @@ public class MyTargetsListActivity extends BaseListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		TAG="MyObserversListActivity";
+		TAG="MyTargetsListActivity";
 		listType=LIST_TYPE_MY_TARGETS;
 		fabIcon=android.R.drawable.ic_menu_add;
 		init(savedInstanceState);

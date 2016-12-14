@@ -131,14 +131,14 @@ public class ObserveActivity extends AppCompatActivity implements
 		textTimeActivity =(TextView) findViewById(R.id.textViewTimeActivity);
 		textTimePlaces =(TextView) findViewById(R.id.textViewTimePlaces);
 		textActivity=(TextView) findViewById(R.id.textViewActivity);
-		fab=(FloatingActionButton) findViewById(R.id.fab);
+		fab=(FloatingActionButton) findViewById(R.id.floatingActionButton);
 		mProgressBar=(ProgressBar) findViewById(R.id.progressBar);
 		mLayoutNoTarget=(LinearLayout) findViewById(R.id.layoutNoTarget);
 		actionBar = getSupportActionBar();
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 		mFirebaseAuth = FirebaseAuth.getInstance();
-		setupGoogleApiClient();
+		//setupGoogleApiClient();
 		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(map);
 		mapFragment.getMapAsync(this);
@@ -211,6 +211,8 @@ public class ObserveActivity extends AppCompatActivity implements
 		final FirebaseUser firebaseUser = mFirebaseAuth.getCurrentUser();
 		mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 		if(firebaseUser!=null){
+			Log.e(TAG, "firebaseUser!=null");
+
 			mFirebaseDatabaseReference.child(TABLE_DB_USERS).addListenerForSingleValueEvent(new ValueEventListener() {
 				@Override
 				public void onDataChange(DataSnapshot dataSnapshot) {
@@ -226,22 +228,28 @@ public class ObserveActivity extends AppCompatActivity implements
 						}
 					}
 					if(!exists) {
+						Log.w(TAG, "!exists");
+
 						String photoUrl=null;
 						if(firebaseUser.getPhotoUrl()!=null)
 							photoUrl=firebaseUser.getPhotoUrl().toString();
 						key=mFirebaseDatabaseReference.child(TABLE_DB_USERS).push().getKey();
 						User user=new User(firebaseUser.getUid(),firebaseUser.isAnonymous() ? "Anonymous": firebaseUser.getDisplayName(), photoUrl,key);
 						mFirebaseDatabaseReference.child(TABLE_DB_USERS).child(key).setValue(user);
+
 					}else {
+						Log.w(TAG, "exists");
+
 						prefs.edit().putString(SETTINGS_MY_UID, key).apply();
 					}
+					Log.w(TAG, "ID="+key);
+					Log.w(TAG, "ID="+firebaseUser.getUid());
+
 					if(prefs.getString(SETTINGS_DB_TOKEN, null)!=null) {
 						Log.w("TAG", "SETTINGS_DB_TOKEN: "+prefs.getString(SETTINGS_DB_TOKEN, null));
 						mFirebaseDatabaseReference.child(TABLE_DB_USERS).child(key).child(FIELD_DB_TOKEN).setValue(prefs.getString(SETTINGS_DB_TOKEN, null));
 					}else Log.e("SignIn", "TOKEN NOT FOUND");
-
 					checkIntent();
-
 				}
 
 				@Override
