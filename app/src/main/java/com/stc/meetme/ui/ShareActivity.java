@@ -15,6 +15,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -31,10 +32,18 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
 import com.stc.meetme.Constants;
 import com.stc.meetme.DetectedActivityIntentService;
 import com.stc.meetme.DetectedLocationIntentService;
 import com.stc.meetme.R;
+import com.stc.meetme.model.UserPosition;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import butterknife.ButterKnife;
 import timber.log.Timber;
@@ -43,9 +52,11 @@ import static com.stc.meetme.Constants.ADDRESS_REQUESTED_KEY;
 import static com.stc.meetme.Constants.CALLBACK_ACTIVITY;
 import static com.stc.meetme.Constants.CALLBACK_LOCATION;
 import static com.stc.meetme.Constants.FASTEST_INTERVAL;
+import static com.stc.meetme.Constants.FIELD_DB_USER_POSITIONS;
 import static com.stc.meetme.Constants.INTENT_EXTRA_OBSERVE_UID;
 import static com.stc.meetme.Constants.PERMISSION_REQUEST_FINE_LOCATION;
 import static com.stc.meetme.Constants.SETTINGS_MY_UID;
+import static com.stc.meetme.Constants.TABLE_DB_USER_STATUSES;
 import static com.stc.meetme.Constants.UPDATE_INTERVAL;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
@@ -136,12 +147,14 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 				sharePosition(currentUserId);
 			}
 		});
+		setUpdatesRequestedState(false);
 		setButtonsEnabledState();
 		if (savedInstanceState != null) {
 			if (savedInstanceState.keySet().contains(ADDRESS_REQUESTED_KEY)) {
 				mAddressRequested = savedInstanceState.getBoolean(ADDRESS_REQUESTED_KEY);
 			}
 		}
+
 	}
 	private void sharePosition(String currentUserId) {
 		String url = "https://f3x9u.app.goo.gl/observe/"+currentUserId;
@@ -194,6 +207,7 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 		if (mGoogleApiClient!=null &&  mGoogleApiClient.isConnected()) {
 			mGoogleApiClient.disconnect();
 		}
+
 	}
 
 	public void requestUpdates() {
@@ -211,7 +225,7 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 
 			ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
 					mGoogleApiClient,
-					Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
+					Constants.UPDATE_INTERVAL,
 					getActivityDetectionPendingIntent()
 			).setResultCallback(getCallback(true,CALLBACK_ACTIVITY));
 
@@ -226,6 +240,39 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 			).setResultCallback(getCallback(true,CALLBACK_LOCATION));
 		}
 	}
+	public void checkOutdatedDbData(){
+		FirebaseDatabase.getInstance().getReference().child(TABLE_DB_USER_STATUSES).child(currentUserId).child(FIELD_DB_USER_POSITIONS).addChildEventListener(
+				new ChildEventListener() {
+					@Override
+					public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+						UserPosition userPosition = dataSnapshot.getValue(UserPosition.class);
+						Date dateNow = new Date();
+						Date dateDb = new Date(userPosition.getTimestamp());
+						SimpleDateFormat dateFormat=new SimpleDateFormat("DD");
+						if(!TextUtils.equals(dateFormat.format(dateNow), dateFormat.format(dateDb))) {
+							FirebaseDatabase.getInstance().getReference().child(TABLE_DB_USER_STATUSES).child(currentUserId).child(FIELD_DB_USER_POSITIONS).updateChildren(null);
+						}
+					}
+
+					@Override
+					public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+					}
+
+					@Override
+					public void onChildRemoved(DataSnapshot dataSnapshot) {
+					}
+
+					@Override
+					public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+					}
+
+					@Override
+					public void onCancelled(DatabaseError databaseError) {
+					}
+				});
+	}
 	ResultCallback<Status> getCallback(final boolean enabled,final int type){
 		assertFalse(type!=CALLBACK_ACTIVITY && type!=CALLBACK_LOCATION);
 		return new ResultCallback<Status>() {
@@ -233,17 +280,11 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 			public void onResult(@NonNull Status status) {
 				Log.w(TAG, "onResult: "+status.toString() );
 				if (status.isSuccess()) {
-					if(type==CALLBACK_ACTIVITY){
-						setActivityUpdatesRequestedState(enabled);
-
-					}
-					if(type==CALLBACK_LOCATION){
-						textStatusActivity.setText("location updates enabled: "+enabled);
-						setLocationUpdatesRequestedState(enabled);
-					}
-					setButtonsEnabledState();
+						setUpdatesRequestedState(enabled);
 				} else {
 					Log.e(TAG, "Error adding or removing activity detection: " + status.getStatusMessage());
+					setUpdatesRequestedState(false);
+
 				}
 			}
 		};
@@ -252,16 +293,13 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 	public void removeUpdates() {
 		if (mGoogleApiClient==null || !mGoogleApiClient.isConnected()) {
 			Log.e(TAG, "removeUpdates: notConnected");
-			setLocationUpdatesRequestedState(false);
-			setActivityUpdatesRequestedState(false);
-			setButtonsEnabledState();
+			setUpdatesRequestedState(false);
 			return;
 		}
 		ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
 				mGoogleApiClient,
 				getActivityDetectionPendingIntent()
 		).setResultCallback(getCallback(false,CALLBACK_ACTIVITY));
-
 		LocationServices.FusedLocationApi.removeLocationUpdates(
 				mGoogleApiClient,
 				getActivityDetectionPendingIntent()
@@ -282,18 +320,17 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 		return prefs.getBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, false) &&
 				prefs.getBoolean(Constants.LOCATION_UPDATES_REQUESTED_KEY, false);
 	}
-	private void setLocationUpdatesRequestedState(boolean requestingUpdates) {
+	private void setUpdatesRequestedState(boolean requestingUpdates) {
+
+		textStatusLocation.setText("location updates enabled: "+requestingUpdates);
+		prefs.edit()
+				.putBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, requestingUpdates)
+				.apply();
 		textStatusActivity.setText("activity updates enabled: "+requestingUpdates);
 		prefs.edit()
 				.putBoolean(Constants.LOCATION_UPDATES_REQUESTED_KEY, requestingUpdates)
 				.apply();
-	}
-	private void setActivityUpdatesRequestedState(boolean requestingUpdates) {
-		textStatusLocation.setText("location updates enabled: "+requestingUpdates);
-
-		prefs.edit()
-				.putBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, requestingUpdates)
-				.apply();
+		setButtonsEnabledState();
 	}
 
 	public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -360,8 +397,9 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 		Snackbar.make(mLayout,
 				"Connection Suspended. Reconnecting",
 				Snackbar.LENGTH_SHORT).show();
-		mGoogleApiClient.connect();
 
+		setUpdatesRequestedState(false);
+		mGoogleApiClient.connect();
 	}
 
 	@Override
@@ -370,6 +408,7 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 		Snackbar.make(mLayout,
 				"Connection Failed",
 				Snackbar.LENGTH_SHORT).show();
+		setUpdatesRequestedState(false);
 	}
 
 

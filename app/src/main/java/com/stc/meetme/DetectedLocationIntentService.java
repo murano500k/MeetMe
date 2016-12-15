@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import static com.stc.meetme.Constants.FIELD_DB_USER_POSITION;
+import static com.stc.meetme.Constants.FIELD_DB_USER_POSITIONS;
 import static com.stc.meetme.Constants.TABLE_DB_USER_STATUSES;
 
 /**
@@ -41,7 +41,11 @@ public class DetectedLocationIntentService extends IntentService {
 	private DatabaseReference mFirebaseDatabaseReference;
 
 	private String currentUserId;
-    /**
+	private UserPosition lastUserPosition;
+	private String lastUserPositionKey;
+
+
+	/**
      * This constructor is required, and calls the super IntentService(String)
      * constructor with the name for a worker thread.
      */
@@ -121,8 +125,17 @@ public class DetectedLocationIntentService extends IntentService {
 						userPosition.setPlaceAddress(addressLines);
 						//userPosition.setPlaceName(address.getPremises());
 					}
-					mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId)
-							.child(FIELD_DB_USER_POSITION).setValue(userPosition);
+					if(lastUserPosition!=null && lastUserPositionKey!=null){
+						if(userPosition.getLat()==lastUserPosition.getLat() && userPosition.getLng()==lastUserPosition.getLng()){
+							mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId)
+									.child(FIELD_DB_USER_POSITIONS).child(lastUserPositionKey).setValue(userPosition);
+						}
+					}else {
+						lastUserPositionKey = mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId)
+								.child(FIELD_DB_USER_POSITIONS).push().getKey();
+						mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId)
+								.child(FIELD_DB_USER_POSITIONS).child(lastUserPositionKey).setValue(userPosition);
+					}
 					return;
 				} else Log.e(TAG, "locationResult ERROR no location ");
 			}
@@ -132,7 +145,7 @@ public class DetectedLocationIntentService extends IntentService {
             errorMessage = getString(R.string.no_location_data_provided);
             Log.wtf(TAG, errorMessage);
 	        mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId)
-			        .child(FIELD_DB_USER_POSITION).setValue(null);
+			        .child(FIELD_DB_USER_POSITIONS).setValue(null);
 	        return;
         }*/
 

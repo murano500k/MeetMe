@@ -13,8 +13,9 @@ public final class Constants {
 	private Constants() {
 	}
 
-	public static final  long UPDATE_INTERVAL = 10 * 1000;  /* 10 secs */
-	public static final  long FASTEST_INTERVAL = 2000; /* 2 sec */
+	public static final  long UPDATE_INTERVAL = 60 * 1000;
+	public static final  long FASTEST_INTERVAL = 10000;
+
 
 	public static final int PERMISSION_REQUEST_FINE_LOCATION = 941;
 
@@ -42,7 +43,6 @@ public final class Constants {
 	 * fastest possible rate. Getting frequent updates negatively impact battery life and a real
 	 * app may prefer to request less frequent updates.
 	 */
-	public static final long DETECTION_INTERVAL_IN_MILLISECONDS = 0;
 
 	/**
 	 * List of DetectedActivity types that we monitor in this sample.
@@ -86,7 +86,7 @@ public final class Constants {
 	public static final String FIELD_DB_SUBSCRIPTION_ACTIVE = "active";
 
 
-	public static final String FIELD_DB_USER_POSITION = "user_position";
+	public static final String FIELD_DB_USER_POSITIONS = "user_position";
 	public static final String FIELD_DB_PLACE_NAME = "place_name";
 	public static final String FIELD_DB_PLACE_ADDRESS = "place_address";
 	public static final String FIELD_DB_LONG = "long";
