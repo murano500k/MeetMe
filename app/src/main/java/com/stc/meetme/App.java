@@ -24,17 +24,16 @@ public class App extends Application {
 	public void onCreate() {
 		super.onCreate();
 		if (BuildConfig.DEBUG) {
-			Timber.plant(new Timber.DebugTree(){
-				@Override
-				protected String createStackElementTag(StackTraceElement element) {
-					return super.createStackElementTag(element)
-							+'.'+element.getMethodName()
-							+':'+element.getLineNumber();
-				}
-			});
-		}else {
-			Timber.plant(new Timber.DebugTree());
+
 		}
+		Timber.plant(new Timber.DebugTree(){
+			@Override
+			protected String createStackElementTag(StackTraceElement element) {
+				return super.createStackElementTag(element)
+						+'.'+element.getMethodName()
+						+':'+element.getLineNumber();
+			}
+		});
 		IntentFilter intentFilter = new IntentFilter(DeepLinkHandler.ACTION);
 		LocalBroadcastManager.getInstance(this).registerReceiver(new DeepLinkReceiver(), intentFilter);
 	}

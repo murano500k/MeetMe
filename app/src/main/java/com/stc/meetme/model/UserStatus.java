@@ -1,31 +1,34 @@
 package com.stc.meetme.model;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
  * Created by artem on 11/10/16.
  */
 
-public class UserStatus {
+public class UserStatus  implements Serializable {
 
-	private UserPosition userPosition;
-	private UserActivity userActivity;
+	private List<ModelUserPosition> modelUserPosition;
+	private ModelUserActivity modelUserActivity;
 
 	public UserStatus() {
 	}
 
-	public UserPosition getUserPosition() {
-		return userPosition;
+	public List<ModelUserPosition> getModelUserPosition() {
+		return modelUserPosition;
 	}
 
-	public void setUserPosition(UserPosition userPosition) {
-		this.userPosition = userPosition;
+	public void setModelUserPosition(List<ModelUserPosition> modelUserPosition) {
+		this.modelUserPosition = modelUserPosition;
 	}
 
-	public UserActivity getUserActivity() {
+	public ModelUserActivity getModelUserActivity() {
 
-		return userActivity;
+		return modelUserActivity;
 	}
 
-	public void setUserActivity(UserActivity userActivity) {
-		this.userActivity = userActivity;
+	public void setModelUserActivity(ModelUserActivity modelUserActivity) {
+		this.modelUserActivity = modelUserActivity;
 	}
 }

@@ -11,7 +11,7 @@ import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.stc.meetme.model.UserActivity;
+import com.stc.meetme.model.ModelUserActivity;
 
 import java.util.List;
 import java.util.Set;
@@ -25,7 +25,7 @@ public class DetectedActivityIntentService extends IntentService {
 
 	private SharedPreferences prefs;
 
-	UserActivity mDetectedActivity;
+	ModelUserActivity mDetectedActivity;
 
 	private DatabaseReference mFirebaseDatabaseReference;
 
@@ -73,37 +73,37 @@ public class DetectedActivityIntentService extends IntentService {
 		}
 	}
 
-	public static UserActivity getDbUserActivity(List<DetectedActivity> detectedActivities, Context context) {
+	public static ModelUserActivity getDbUserActivity(List<DetectedActivity> detectedActivities, Context context) {
 		Log.i(TAG, "activities detected");
 		if (detectedActivities == null || detectedActivities.isEmpty()){
 			Log.e("ERROR", "activities empty");
 		return null;
 		}
 		else {
-			UserActivity userActivity = new UserActivity();
+			ModelUserActivity modelUserActivity = new ModelUserActivity();
 			DetectedActivity da=null;
 			if(detectedActivities.size()>0 && detectedActivities.get(0)!=null){
 				da = detectedActivities.get(0);
 				Log.w(TAG, "DetectedActivity0"+Constants.getActivityString(
 						context,
 						da.getType()) + " " + da.getConfidence() + "%");
-				userActivity.setActivity0(Constants.getActivityString(context, da.getType())+" "+da.getConfidence()+"%");
+				modelUserActivity.setActivity0(Constants.getActivityString(context, da.getType())+" "+da.getConfidence()+"%");
 			}
 			if(detectedActivities.size()>1 && detectedActivities.get(1)!=null){
 				da = detectedActivities.get(1);
 				Log.w(TAG, "DetectedActivity1"+Constants.getActivityString(
 						context,
 						da.getType()) + " " + da.getConfidence() + "%");
-				userActivity.setActivity1(Constants.getActivityString(context, da.getType())+" "+da.getConfidence()+"%");
+				modelUserActivity.setActivity1(Constants.getActivityString(context, da.getType())+" "+da.getConfidence()+"%");
 			}
 			if(detectedActivities.size()>2 && detectedActivities.get(2)!=null){
 				da = detectedActivities.get(2);
 				Log.w(TAG, "DetectedActivity2"+Constants.getActivityString(
 						context,
 						da.getType()) + " " + da.getConfidence() + "%");
-				userActivity.setActivity2(Constants.getActivityString(context, da.getType())+" "+da.getConfidence()+"%");
+				modelUserActivity.setActivity2(Constants.getActivityString(context, da.getType())+" "+da.getConfidence()+"%");
 			}
-			return userActivity;
+			return modelUserActivity;
 		}
 	}
 }

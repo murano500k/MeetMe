@@ -14,7 +14,7 @@ import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationResult;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.stc.meetme.model.UserPosition;
+import com.stc.meetme.model.ModelUserPosition;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,7 +41,7 @@ public class DetectedLocationIntentService extends IntentService {
 	private DatabaseReference mFirebaseDatabaseReference;
 
 	private String currentUserId;
-	private UserPosition lastUserPosition;
+	private ModelUserPosition lastModelUserPosition;
 	private String lastUserPositionKey;
 
 
@@ -88,11 +88,11 @@ public class DetectedLocationIntentService extends IntentService {
 				if (location != null) {
 					Log.d("locationtesting", "accuracy: " + location.getAccuracy() + " lat: " + location.getLatitude() + " lon: " + location.getLongitude());
 
-					UserPosition userPosition = new UserPosition();
-					userPosition.setLat(location.getLatitude());
-					userPosition.setLng(location.getLongitude());
-					userPosition.setTimestamp(location.getTime());
-					userPosition.setAccuracy(location.getAccuracy());
+					ModelUserPosition modelUserPosition = new ModelUserPosition();
+					modelUserPosition.setLat(location.getLatitude());
+					modelUserPosition.setLng(location.getLongitude());
+					modelUserPosition.setTimestamp(location.getTime());
+					modelUserPosition.setAccuracy(location.getAccuracy());
 
 					Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 					String errorMessage = "";
@@ -122,19 +122,19 @@ public class DetectedLocationIntentService extends IntentService {
 						for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
 							addressLines += address.getAddressLine(i) + " ";
 						}
-						userPosition.setPlaceAddress(addressLines);
+						modelUserPosition.setPlaceAddress(addressLines);
 						//userPosition.setPlaceName(address.getPremises());
 					}
-					if(lastUserPosition!=null && lastUserPositionKey!=null){
-						if(userPosition.getLat()==lastUserPosition.getLat() && userPosition.getLng()==lastUserPosition.getLng()){
+					if(lastModelUserPosition !=null && lastUserPositionKey!=null){
+						if(modelUserPosition.getLat()== lastModelUserPosition.getLat() && modelUserPosition.getLng()== lastModelUserPosition.getLng()){
 							mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId)
-									.child(FIELD_DB_USER_POSITIONS).child(lastUserPositionKey).setValue(userPosition);
+									.child(FIELD_DB_USER_POSITIONS).child(lastUserPositionKey).setValue(modelUserPosition);
 						}
 					}else {
 						lastUserPositionKey = mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId)
 								.child(FIELD_DB_USER_POSITIONS).push().getKey();
 						mFirebaseDatabaseReference.child(TABLE_DB_USER_STATUSES).child(currentUserId)
-								.child(FIELD_DB_USER_POSITIONS).child(lastUserPositionKey).setValue(userPosition);
+								.child(FIELD_DB_USER_POSITIONS).child(lastUserPositionKey).setValue(modelUserPosition);
 					}
 					return;
 				} else Log.e(TAG, "locationResult ERROR no location ");

@@ -5,7 +5,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.stc.meetme.model.Data;
-import com.stc.meetme.model.Notification;
+import com.stc.meetme.model.FcmNotification;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -33,7 +33,7 @@ public class NotificationSender {
 				.addConverterFactory(GsonConverterFactory.create(gson))
 				.build();
 		FcmRetroInterface fcmRetroInterface =retrofit.create(FcmRetroInterface.class);
-		final SendMsgRequest request = new SendMsgRequest("/topics/friendly_engage", new Data("Test message"),new Notification("Test message notification"));
+		final SendMsgRequest request = new SendMsgRequest("/topics/friendly_engage", new Data("Test message"),new FcmNotification("Test message notification"));
 		Call<SendMsgResponce> call = fcmRetroInterface.send(request);
 		call.enqueue(new Callback<SendMsgResponce>() {
 			@Override
@@ -65,7 +65,7 @@ public class NotificationSender {
 				.build();
 		FcmRetroInterface fcmRetroInterface =retrofit.create(FcmRetroInterface.class);
 		Log.d("TAG", "TOKEN TOSEND "+token);
-		final SendMsgRequest request = new SendMsgRequest(token, new Data("New message"),new Notification("You have new message"));
+		final SendMsgRequest request = new SendMsgRequest(token, new Data("New message"),new FcmNotification("You have new message"));
 
 		Call<SendMsgResponce> call = fcmRetroInterface.send(request);
 		call.enqueue(new Callback<SendMsgResponce>() {
@@ -99,7 +99,7 @@ public class NotificationSender {
 		final SendMsgRequest request = new SendMsgRequest(
 				token,
 				new Data(""+messageText, fromUid, fromName),
-				new Notification("You have new message from "+fromName));
+				new FcmNotification("You have new message from "+fromName));
 		Call<SendMsgResponce> call = fcmRetroInterface.send(request);
 		call.enqueue(new Callback<SendMsgResponce>() {
 			@Override

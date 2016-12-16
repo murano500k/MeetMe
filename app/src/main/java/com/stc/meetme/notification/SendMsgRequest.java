@@ -2,7 +2,7 @@ package com.stc.meetme.notification;
 
 import com.google.gson.annotations.SerializedName;
 import com.stc.meetme.model.Data;
-import com.stc.meetme.model.Notification;
+import com.stc.meetme.model.FcmNotification;
 
 /**
  * Created by artem on 10/26/16.
@@ -15,11 +15,11 @@ public class SendMsgRequest {
 	@SerializedName("data")
 	Data data;
 	@SerializedName("notification")
-	Notification notification;
+	FcmNotification fcmNotification;
 
-	public SendMsgRequest(String to, Data data, Notification notification) {
+	public SendMsgRequest(String to, Data data, FcmNotification fcmNotification) {
 		this.data = data;
-		this.notification = notification;
+		this.fcmNotification = fcmNotification;
 		this.to = to;
 	}
 

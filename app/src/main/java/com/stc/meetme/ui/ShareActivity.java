@@ -27,7 +27,7 @@ import android.widget.Toast;
 import com.google.android.gms.awareness.Awareness;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationRequest;
@@ -39,8 +39,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.stc.meetme.Constants;
 import com.stc.meetme.DetectedActivityIntentService;
 import com.stc.meetme.DetectedLocationIntentService;
+import com.stc.meetme.LocationHelper;
 import com.stc.meetme.R;
-import com.stc.meetme.model.UserPosition;
+import com.stc.meetme.SharingStatusNotifier;
+import com.stc.meetme.model.ModelUserPosition;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -48,22 +50,18 @@ import java.util.Date;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 
+import static com.google.android.gms.location.LocationServices.FusedLocationApi;
 import static com.stc.meetme.Constants.ADDRESS_REQUESTED_KEY;
-import static com.stc.meetme.Constants.CALLBACK_ACTIVITY;
-import static com.stc.meetme.Constants.CALLBACK_LOCATION;
-import static com.stc.meetme.Constants.FASTEST_INTERVAL;
 import static com.stc.meetme.Constants.FIELD_DB_USER_POSITIONS;
 import static com.stc.meetme.Constants.INTENT_EXTRA_OBSERVE_UID;
 import static com.stc.meetme.Constants.PERMISSION_REQUEST_FINE_LOCATION;
 import static com.stc.meetme.Constants.SETTINGS_MY_UID;
 import static com.stc.meetme.Constants.TABLE_DB_USER_STATUSES;
-import static com.stc.meetme.Constants.UPDATE_INTERVAL;
-import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 
 
 public class ShareActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
-		GoogleApiClient.OnConnectionFailedListener{
+		GoogleApiClient.OnConnectionFailedListener, SharingStatusNotifier.UIUpdateInterface {
 	private static final String TAG = "ShareActivity";
 
 
@@ -95,6 +93,10 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 	private View mLayout;
 
 	NotificationManager notificationManager;
+	private PendingResult<Status> requestLocationResult;
+	private PendingResult<Status> requestActivityResult;
+	public SharingStatusNotifier notifier;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -147,14 +149,18 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 				sharePosition(currentUserId);
 			}
 		});
-		setUpdatesRequestedState(false);
-		setButtonsEnabledState();
 		if (savedInstanceState != null) {
 			if (savedInstanceState.keySet().contains(ADDRESS_REQUESTED_KEY)) {
 				mAddressRequested = savedInstanceState.getBoolean(ADDRESS_REQUESTED_KEY);
 			}
 		}
+		notifier=new SharingStatusNotifier(this);
 
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		//if(intent.getAction().equals(INTENT_ACTION_STOP_UPDATES)) removeUpdates();
 	}
 	private void sharePosition(String currentUserId) {
 		String url = "https://f3x9u.app.goo.gl/observe/"+currentUserId;
@@ -223,21 +229,22 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 				return;
 			}
 
-			ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
+			requestActivityResult =ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
 					mGoogleApiClient,
 					Constants.UPDATE_INTERVAL,
 					getActivityDetectionPendingIntent()
-			).setResultCallback(getCallback(true,CALLBACK_ACTIVITY));
+			);
+			//requestActivityResult.setResultCallback(notifier.getCallback(true,CALLBACK_ACTIVITY));
 
-			LocationRequest mLocationRequest = LocationRequest.create()
-					.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-					.setInterval(UPDATE_INTERVAL)
-					.setFastestInterval(FASTEST_INTERVAL);
-			LocationServices.FusedLocationApi.requestLocationUpdates(
+
+			checkOutdatedDbData();
+			LocationRequest mLocationRequest = LocationHelper.getLocationRequest();
+			requestLocationResult = LocationServices.FusedLocationApi.requestLocationUpdates(
 					mGoogleApiClient,
 					mLocationRequest,
 					getLocationDetectionPendingIntent()
-			).setResultCallback(getCallback(true,CALLBACK_LOCATION));
+			);
+			//requestLocationResult.setResultCallback(notifier.getCallback(true,CALLBACK_LOCATION));
 		}
 	}
 	public void checkOutdatedDbData(){
@@ -245,9 +252,9 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 				new ChildEventListener() {
 					@Override
 					public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-						UserPosition userPosition = dataSnapshot.getValue(UserPosition.class);
+						ModelUserPosition modelUserPosition = dataSnapshot.getValue(ModelUserPosition.class);
 						Date dateNow = new Date();
-						Date dateDb = new Date(userPosition.getTimestamp());
+						Date dateDb = new Date(modelUserPosition.getTimestamp());
 						SimpleDateFormat dateFormat=new SimpleDateFormat("DD");
 						if(!TextUtils.equals(dateFormat.format(dateNow), dateFormat.format(dateDb))) {
 							FirebaseDatabase.getInstance().getReference().child(TABLE_DB_USER_STATUSES).child(currentUserId).child(FIELD_DB_USER_POSITIONS).updateChildren(null);
@@ -273,37 +280,20 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 					}
 				});
 	}
-	ResultCallback<Status> getCallback(final boolean enabled,final int type){
-		assertFalse(type!=CALLBACK_ACTIVITY && type!=CALLBACK_LOCATION);
-		return new ResultCallback<Status>() {
-			@Override
-			public void onResult(@NonNull Status status) {
-				Log.w(TAG, "onResult: "+status.toString() );
-				if (status.isSuccess()) {
-						setUpdatesRequestedState(enabled);
-				} else {
-					Log.e(TAG, "Error adding or removing activity detection: " + status.getStatusMessage());
-					setUpdatesRequestedState(false);
-
-				}
-			}
-		};
-	}
 
 	public void removeUpdates() {
 		if (mGoogleApiClient==null || !mGoogleApiClient.isConnected()) {
 			Log.e(TAG, "removeUpdates: notConnected");
-			setUpdatesRequestedState(false);
-			return;
+			//return;
 		}
 		ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
 				mGoogleApiClient,
 				getActivityDetectionPendingIntent()
-		).setResultCallback(getCallback(false,CALLBACK_ACTIVITY));
-		LocationServices.FusedLocationApi.removeLocationUpdates(
+		);//.setResultCallback(notifier.getCallback(false,CALLBACK_ACTIVITY));
+		FusedLocationApi.removeLocationUpdates(
 				mGoogleApiClient,
-				getActivityDetectionPendingIntent()
-		).setResultCallback(getCallback(false,CALLBACK_LOCATION));
+				getLocationDetectionPendingIntent()
+		);//.setResultCallback(notifier.getCallback(false,CALLBACK_LOCATION));
 	}
 
 
@@ -316,29 +306,15 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 		return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 	}
 
-	private boolean getUpdatesRequestedState() {
-		return prefs.getBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, false) &&
-				prefs.getBoolean(Constants.LOCATION_UPDATES_REQUESTED_KEY, false);
-	}
-	private void setUpdatesRequestedState(boolean requestingUpdates) {
 
-		textStatusLocation.setText("location updates enabled: "+requestingUpdates);
-		prefs.edit()
-				.putBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, requestingUpdates)
-				.apply();
-		textStatusActivity.setText("activity updates enabled: "+requestingUpdates);
-		prefs.edit()
-				.putBoolean(Constants.LOCATION_UPDATES_REQUESTED_KEY, requestingUpdates)
-				.apply();
-		setButtonsEnabledState();
-	}
 
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		super.onSaveInstanceState(savedInstanceState);
 	}
 
-	private void setButtonsEnabledState() {
-		if (getUpdatesRequestedState()) {
+	@Override
+	public void updateUi(boolean status) {
+		if (status) {
 			buttonObserve.setEnabled(true);
 			buttonShare.setEnabled(true);
 			buttonRemove.setEnabled(true);
@@ -359,6 +335,8 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 			buttonRemove.setVisibility(View.GONE);
 			buttonRegister.setVisibility(View.VISIBLE);
 		}
+		textStatusLocation.setText("location updates enabled: "+status);
+		textStatusActivity.setText("activity updates enabled: "+status);
 	}
 
 
@@ -398,7 +376,7 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 				"Connection Suspended. Reconnecting",
 				Snackbar.LENGTH_SHORT).show();
 
-		setUpdatesRequestedState(false);
+		notifier.stopNotification();
 		mGoogleApiClient.connect();
 	}
 
@@ -408,9 +386,8 @@ public class ShareActivity extends AppCompatActivity implements GoogleApiClient.
 		Snackbar.make(mLayout,
 				"Connection Failed",
 				Snackbar.LENGTH_SHORT).show();
-		setUpdatesRequestedState(false);
+		notifier.stopNotification();
 	}
-
 
 
 }

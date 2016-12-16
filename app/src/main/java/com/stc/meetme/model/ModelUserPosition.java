@@ -2,11 +2,13 @@ package com.stc.meetme.model;
 
 import android.text.format.DateFormat;
 
+import java.io.Serializable;
+
 /**
  * Created by artem on 11/10/16.
  */
 
-public class UserPosition {
+public class ModelUserPosition implements Serializable {
 	private String placeName;
 	private String placeAddress;
 	private double mLng;
@@ -62,7 +64,7 @@ public class UserPosition {
 		this.timestamp = timestamp;
 	}
 
-	public UserPosition() {
+	public ModelUserPosition() {
 
 	}
 

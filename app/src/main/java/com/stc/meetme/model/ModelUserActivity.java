@@ -2,19 +2,31 @@ package com.stc.meetme.model;
 
 import android.text.format.DateFormat;
 
+import java.io.Serializable;
+
 /**
  * Created by artem on 11/10/16.
  */
 
-public class UserActivity {
+public class ModelUserActivity implements Serializable {
 
 	private long timestamp;
 	private String activity0;
 	private String activity1;
 	private String activity2;
+	private int firstActivityCode;
 
 
-	public UserActivity() {
+	public ModelUserActivity() {
+	}
+
+	public int getFirstActivityCode() {
+
+		return firstActivityCode;
+	}
+
+	public void setFirstActivityCode(int firstActivityCode) {
+		this.firstActivityCode = firstActivityCode;
 	}
 
 	public String getActivity0() {

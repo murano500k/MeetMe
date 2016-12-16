@@ -22,6 +22,11 @@ public final class Constants {
 	public static final int CALLBACK_ACTIVITY = 0;
 	public static final int CALLBACK_LOCATION = 1;
 
+	public static final int NOTIFICATION_ID_STATUS = 587;
+
+
+
+
 	public static final String PACKAGE_NAME = "com.google.android.gms.location.activityrecognition";
 
 	public static final String BROADCAST_ACTION = PACKAGE_NAME + ".BROADCAST_ACTION";
@@ -65,9 +70,20 @@ public final class Constants {
 
 	public static final int LIST_TYPE_MY_TARGETS = 623;
 	public static final int LIST_TYPE_MY_OBSERVERS = 622;
+
 	public static final String INTENT_EXTRA_OBSERVE_UID = "com.stc.firebase.android.chat.INTENT_EXTRA_OBSERVE_UID";
 	public static final String INTENT_EXTRA_OBSERVE_LAT = "com.stc.firebase.android.chat.INTENT_EXTRA_OBSERVE_LAT";
-	public static final String INTENT_EXTRA_OBSERVE_LNG = "com.stc.firebase.android.chat.INTENT_EXTRA_OBSERVE_LNG";
+	public static final String INTENT_EXTRA_MY_ACTIVITY = "com.stc.meetme.INTENT_EXTRA_MY_ACTIVITY";
+	public static final String INTENT_EXTRA_MY_POSITION = "com.stc.meetme.INTENT_EXTRA_MY_POSITION";
+	public static final String INTENT_EXTRA_MY_UPDATES_STATUS = "com.stc.meetme.INTENT_EXTRA_MY_UPDATES_STATUS";
+	public static final String INTENT_EXTRA_GAPI_STATUS = "com.stc.meetme.INTENT_EXTRA_GAPI_STATUS";
+	public static final String INTENT_EXTRA_MY_DB_UID = "com.stc.meetme.INTENT_EXTRA_MY_DB_UID";
+
+
+	public static final String INTENT_ACTION_START_MY_UPDATES = "com.stc.meetme.INTENT_ACTION_START_UPDATES";
+	public static final String INTENT_ACTION_STOP_MY_UPDATES = "com.stc.meetme.INTENT_ACTION_STOP_UPDATES";
+	public static final String INTENT_ACTION_GET_STATUS = "com.stc.meetme.INTENT_ACTION_GET_STATUS";
+
 
 
 	public static final String SETTINGS_DB_TOKEN = "com.stc.firebase.android.chat.SETTINGS_DB_TOKEN";
